@@ -1186,13 +1186,39 @@ HTML_CONTENT = """<!DOCTYPE html>
       }
     }, true);
 
-    // Support clipboard paste (Ctrl+V) anywhere on page
+    // Support clipboard paste (Ctrl+V) anywhere on page or inside search input
     window.addEventListener('paste', (e) => {
-      if (e.clipboardData && e.clipboardData.files && e.clipboardData.files.length > 0) {
-        e.preventDefault();
-        setUploadedFile(e.clipboardData.files[0]);
+      const cd = e.clipboardData;
+      if (!cd) return;
+
+      // 1. Check for image files in clipboardData.files
+      if (cd.files && cd.files.length > 0) {
+        for (let i = 0; i < cd.files.length; i++) {
+          if (cd.files[i].type && cd.files[i].type.startsWith('image/')) {
+            e.preventDefault();
+            e.stopPropagation();
+            setUploadedFile(cd.files[i], 'Pasted Image');
+            return;
+          }
+        }
       }
-    });
+
+      // 2. Check for image items in clipboardData.items (standard screenshot paste)
+      if (cd.items && cd.items.length > 0) {
+        for (let i = 0; i < cd.items.length; i++) {
+          const item = cd.items[i];
+          if (item.type && item.type.startsWith('image/')) {
+            const blob = item.getAsFile();
+            if (blob) {
+              e.preventDefault();
+              e.stopPropagation();
+              setUploadedFile(blob, 'Pasted Screenshot');
+              return;
+            }
+          }
+        }
+      }
+    }, true);
 
     async function executeSearch() {
       const q = document.getElementById('queryInput').value.trim();
