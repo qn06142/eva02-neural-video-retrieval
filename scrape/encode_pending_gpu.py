@@ -42,12 +42,27 @@ DEFAULT_EMB_DIR = os.path.join(SCRAPE_DIR, "embeddings_v2")
 DEFAULT_WEIGHTS = os.path.join(SCRAPE_DIR, "siglip_runs", "eva02_curated_v2", "best.pt")
 DEFAULT_MODEL = "hf-hub:timm/eva02_large_patch14_clip_336.merged2b_s6b_b61k"
 
-IMAGE_TRANSFORM = transforms.Compose([
-    transforms.Resize(336, interpolation=transforms.InterpolationMode.BILINEAR, antialias=True),
-    transforms.CenterCrop(336),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711]),
-])
+from torchvision.io import decode_jpeg
+
+IMAGE_MEAN = torch.tensor([0.48145466, 0.4578275, 0.40821073]).view(1, 3, 1, 1)
+IMAGE_STD = torch.tensor([0.26862954, 0.26130258, 0.27577711]).view(1, 3, 1, 1)
+
+
+def collate_mosaic_batch(batch):
+    # batch: list of (tensors_list_of_9, idx)
+    # Each entry has 9 crops of [3, H, W] uint8 (where H, W can vary across videos)
+    all_crops = []
+    indices = []
+    for crops_list, idx in batch:
+        for crop in crops_list:
+            # Resize individual tile to canonical (336, 336) on CPU fast interpolation or pass to GPU
+            # Using F.interpolate on float is fast, or bilinear resize
+            resized = F.interpolate(crop.unsqueeze(0).float(), size=(336, 336), mode="bilinear", align_corners=False).squeeze(0).to(torch.uint8)
+            all_crops.append(resized)
+        indices.append(idx)
+    # all_crops: B * 9 of [3, 336, 336]
+    flat_tensor = torch.stack(all_crops, dim=0)  # [B*9, 3, 336, 336] uint8
+    return flat_tensor, indices
 
 
 class MosaicDataset(Dataset):
@@ -58,22 +73,20 @@ class MosaicDataset(Dataset):
     def __len__(self) -> int:
         return len(self.items)
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
+    def __getitem__(self, idx: int) -> Tuple[List[torch.Tensor], int]:
         eid, title, path, preview = self.items[idx]
-        tiles = []
         try:
-            with Image.open(path) as im:
-                im = im.convert("RGB")
-                w, h = im.size
-                tw, th = w // 3, h // 3
-                for r in range(3):
-                    for c in range(3):
-                        box = (c * tw, r * th, (c + 1) * tw, (r + 1) * th)
-                        tiles.append(IMAGE_TRANSFORM(im.crop(box)))
-                batch_tensor = torch.stack(tiles, dim=0)  # [9, 3, 336, 336]
+            with open(path, "rb") as f:
+                raw_bytes = f.read()
+            raw_tensor = torch.frombuffer(raw_bytes, dtype=torch.uint8)
+            im = decode_jpeg(raw_tensor)  # [3, H, W] uint8 via libjpeg-turbo C++ (< 2.5 ms)
+            _, h, w = im.shape
+            tw, th = w // 3, h // 3
+            # Zero-copy slicing into 9 tiles (320x180 or 368x208)
+            crops = [im[:, r * th : (r + 1) * th, c * tw : (c + 1) * tw].contiguous() for r in range(3) for c in range(3)]
         except Exception:
-            batch_tensor = torch.zeros(9, 3, 336, 336)
-        return batch_tensor, idx
+            crops = [torch.zeros(3, 180, 320, dtype=torch.uint8) for _ in range(9)]
+        return crops, idx
 
 
 def log(msg: str) -> None:
@@ -165,6 +178,7 @@ def main():
             batch_size=args.batch_size,
             shuffle=False,
             num_workers=args.workers,
+            collate_fn=collate_mosaic_batch,
             pin_memory=(args.device == "cuda"),
             prefetch_factor=2 if args.workers > 0 else None,
         )
@@ -179,20 +193,20 @@ def main():
         t0 = time.time()
         encoded_in_run = 0
 
-        for batch_tensor, batch_indices in loader:
+        mean_dev = IMAGE_MEAN.to(args.device, dtype=torch.float16 if args.device == "cuda" else torch.float32)
+        std_dev = IMAGE_STD.to(args.device, dtype=torch.float16 if args.device == "cuda" else torch.float32)
+
+        for flat_uint8, batch_indices in loader:
             if stop_requested:
                 break
 
-            # batch_tensor: [B, 9, 3, 336, 336]
-            batch_tensor = batch_tensor.to(args.device)
-            if args.device == "cuda":
-                batch_tensor = batch_tensor.half()
-
-            B = batch_tensor.size(0)
-            flat_tiles = batch_tensor.view(B * 9, 3, 336, 336)
+            # flat_uint8: [B*9, 3, 336, 336] uint8 (transferred via pinned memory)
+            B = len(batch_indices)
+            flat_half = flat_uint8.to(args.device, non_blocking=True).half()
+            flat_normalized = (flat_half / 255.0).sub_(mean_dev).div_(std_dev)
 
             with torch.inference_mode():
-                feats = model.encode_image(flat_tiles)  # [B*9, 768]
+                feats = model.encode_image(flat_normalized)  # [B*9, 768]
                 feats = F.normalize(feats.float(), dim=-1).half()
                 all_9tiles_np = feats.view(B, 9, 768).cpu().numpy()
                 center_1tile_np = all_9tiles_np[:, 4, :].copy()
@@ -205,7 +219,8 @@ def main():
 
             # Update SQLite metadata
             meta_rows = []
-            for idx_in_batch, original_idx in enumerate(batch_indices.tolist()):
+            idx_list = batch_indices if isinstance(batch_indices, list) else batch_indices.tolist()
+            for idx_in_batch, original_idx in enumerate(idx_list):
                 eid, title, path, preview = valid_items[original_idx]
                 meta_rows.append((next_idx, eid, title, "[]", "[]", path, preview))
                 next_idx += 1
