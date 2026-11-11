@@ -124,10 +124,10 @@ Analyzing pacing from preview video clips on the fly:
 ---
 
 ### 4. Cross-Domain Contrastive Fine-Tuning
-The model bridges photographic video frames with 2D stylized illustrations:
-- Unified taxonomy of **779 curated Danbooru posture, angle, and clothing tags**.
-- Balanced sampling across 147k real-world keyframe bags and curated Danbooru/Pixiv datasets.
-- Multi-label positive-mask SigLIP loss with temperature-scaled pseudo-labeling.
+The model bridges photographic real-world video frames with stylized 2D illustrations so search terms work consistently across both:
+- **Unified 779-Tag Taxonomy**: Normalized Danbooru tags for body postures, camera angles, and clothing items.
+- **Balanced Real & Illustrated Pairs**: Trains simultaneously on 147k real video keyframe bags and curated Danbooru/Pixiv image-tag sets.
+- **Multi-Tag Supervision**: Standard CLIP only matches one caption per image; here, an image can share multiple valid tags (e.g. *thighhighs* + *standing* + *maid*). The training loss rewards all matching tags in a batch instead of treating non-identical tags as false negatives, using model confidence to auto-label missing tags.
 
 ---
 
