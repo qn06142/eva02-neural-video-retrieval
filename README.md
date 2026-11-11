@@ -36,42 +36,88 @@ Video retrieval traditionally faces two major failure modes:
 
 This engine solves both problems with a multi-stage architecture:
 
-```
-+----------------------------------------------------------------------------------------------------+
-|                                    INPUT QUERY (Text / Image / Hybrid)                             |
-+----------------------------------------------------------------------------------------------------+
-                                                  │
-                                                  ▼
-                        +───────────────────────────────────────────────────+
-                        |  STAGE 1: EXHAUSTIVE 9-TILE MIL IN GPU VRAM       |
-                        |  147,412 videos × 9 keyframes = 1,326,708 frames  |
-                        |  Matrix-Vector Dot Product (FP16 Tensor Cores)    |
-                        |  Max-pooling across bags: max_k ⟨q, v_{i,k}⟩      |
-                        |  Latency: ~8.9 ms across 1.33M vectors            |
-                        +───────────────────────────────────────────────────+
-                                                  │
-                               Top M Candidates + Winning Tiles (0..8)
-                                                  │
-                                                  ▼
-                        +───────────────────────────────────────────────────+
-                        |  STAGE 2: ViT DENSE SPATIAL PATCH RERANKING       |
-                        |  Load winning keyframe crops for candidates       |
-                        |  Extract 576 spatial patch tokens (24×24 grid)    |
-                        |  • Text: Top-K Patch Alignment (k=36 / top 6.25%) |
-                        |  • Image: ColBERT-style Patch-to-Patch MaxSim     |
-                        |  Blended score: 0.55 × Stage-1 + 0.45 × Stage-2   |
-                        +───────────────────────────────────────────────────+
-                                                  │
-                               Re-sorted Top-K Ranked Results
-                                                  │
-                                                  ▼
-                        +───────────────────────────────────────────────────+
-                        |  ON-THE-FLY MOTION PACING & RHYTHM ANALYSIS       |
-                        |  • 4×3 Spatial Grid Farnebäck 2D Optical Flow     |
-                        |  • PCA Dominant-Axis projection & Phase Alignment |
-                        |  • 5-Segment Per-Second BPM Timeline Swatch Bar   |
-                        |  • 60fps RequestAnimationFrame Beat Synced Flash  |
-                        +───────────────────────────────────────────────────+
+```mermaid
+flowchart TD
+    %% Styling
+    classDef inputStyle fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#e0e7ff;
+    classDef s1Style fill:#0f2b38,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe;
+    classDef s2Style fill:#14342b,stroke:#34d399,stroke-width:2px,color:#d1fae5;
+    classDef pacingStyle fill:#3b1828,stroke:#f43f5e,stroke-width:2px,color:#ffe4e6;
+    classDef uiStyle fill:#26203d,stroke:#c084fc,stroke-width:2px,color:#f3e8ff;
+    classDef subGraphStyle fill:#0b0d13,stroke:#334155,stroke-width:1px,color:#94a3b8;
+
+    subgraph QueryIngestion [" 1. MULTI-MODAL QUERY INGESTION "]
+        direction LR
+        Q_Text["Text Query<br/><i>e.g. 'maid uniform doggystyle'</i>"]:::inputStyle
+        Q_Image["Image / Screenshot<br/><i>Drag & Drop or Ctrl+V</i>"]:::inputStyle
+        Q_Hybrid["Hybrid Composition<br/><code>0.7 × Image + 0.3 × Text</code>"]:::inputStyle
+        
+        Q_Text -->|EVA-02 Text Encoder| Q_Vec["Query Vector q ∈ ℝ⁷⁶⁸"]:::inputStyle
+        Q_Image -->|EVA-02 Vision Encoder| Q_Vec
+        Q_Hybrid --> Q_Vec
+        Q_Image -.->|Salience Filter| Q_Patches["Top-64 Salient Patch Vectors"]:::inputStyle
+    end
+
+    subgraph Stage1 [" 2. STAGE 1: EXHAUSTIVE 9-TILE MIL IN GPU VRAM (~8.9 ms) "]
+        direction TB
+        VRAM_Tensor[("GPU VRAM Cache<br/><b>1,326,708 Keyframes</b><br/><code>[147412 × 9, 768] FP16 (2.04 GB)</code>")]:::s1Style
+        DotProduct["Matrix-Vector Dot Product (Tensor Cores)<br/><code>torch.mv(tiles_gpu, q.half())</code>"]:::s1Style
+        BagPooling["Chronological Multi-Instance Max-Pooling<br/><code>view(N, 9).max(dim=-1)</code>"]:::s1Style
+        TopCandidates["Top-M Candidates Selection<br/><code>topk(max_scores, M=36..60)</code><br/><i>Preserves Winning Tile ID k* ∈ {0..8}</i>"]:::s1Style
+
+        VRAM_Tensor --> DotProduct
+        Q_Vec --> DotProduct
+        DotProduct --> BagPooling
+        BagPooling --> TopCandidates
+    end
+
+    subgraph Stage2 [" 3. STAGE 2: ViT DENSE SPATIAL PATCH RERANKING (~1.3 s) "]
+        direction TB
+        ParallelCrop["Parallel Keyframe Fetch<br/><i>ThreadPoolExecutor loads winning tile crop k*</i>"]:::s2Style
+        ViTTrunk["EVA-02 ViT Patch Extraction<br/><code>forward_features(crop)</code> → 576 Tokens (24×24 Grid)"]:::s2Style
+        LinearProj["Linear Head Projection<br/><code>head(fc_norm(tokens))</code> → <code>[M, 576, 768]</code>"]:::s2Style
+        
+        TextScore["Text Mode: Top-K Patch Alignment<br/><i>Mean of Top-36 responsive spatial patches (top 6.25%)</i>"]:::s2Style
+        ImageScore["Image Mode: ColBERT Patch MaxSim<br/><code>∑ w_u · max_v ⟨q_u, d_v⟩</code>"]:::s2Style
+        ScoreFusion["Final Score Fusion<br/><code>0.55 × Stage-1 + 0.45 × Dense_Score</code>"]:::s2Style
+
+        TopCandidates --> ParallelCrop
+        ParallelCrop --> ViTTrunk
+        ViTTrunk --> LinearProj
+        LinearProj --> TextScore
+        LinearProj --> ImageScore
+        Q_Patches -.-> ImageScore
+        Q_Vec -.-> TextScore
+        TextScore --> ScoreFusion
+        ImageScore --> ScoreFusion
+    end
+
+    subgraph PacingEngine [" 4. REAL-TIME PACING & RHYTHM HUD (On Hover) "]
+        direction TB
+        HoverVid["Hover Preview Video<br/><i>5-second MP4 stream</i>"]:::pacingStyle
+        FarnebackFlow["4×3 Grid Farnebäck 2D Optical Flow<br/><i>Velocity vectors (vx, vy) across 12 cells</i>"]:::pacingStyle
+        PhaseAlign["PCA Projection & Phase Alignment<br/><i>Inverts peripheral counter-oscillations</i>"]:::pacingStyle
+        BpmDetect["Zero-Crossing & Autocorrelation<br/><i>Computes exact BPM per second</i>"]:::pacingStyle
+        LiveHUD["Live Pacing HUD Display<br/>• 5-Segment Swatch Timeline<br/>• 60fps Beat-Synchronized Pulse Dot"]:::pacingStyle
+
+        HoverVid --> FarnebackFlow
+        FarnebackFlow --> PhaseAlign
+        PhaseAlign --> BpmDetect
+        BpmDetect --> LiveHUD
+    end
+
+    subgraph ClientUI [" 5. INTERACTIVE DARK-MODE RESULT CARDS "]
+        direction LR
+        CardView["Video Card View<br/>• Title & Score Badge<br/>• Posture & Attire Tags"]:::uiStyle
+        MatrixWidget["Interactive 3×3 Frame Matrix<br/><i>Click/Hover cells 0..8 to inspect all keyframes</i>"]:::uiStyle
+        SimilarBtn["'Similar →' Reverse Lookup<br/><i>Searches with winning keyframe crop</i>"]:::uiStyle
+    end
+
+    ScoreFusion --> ClientUI
+    ClientUI --> CardView
+    CardView <--> MatrixWidget
+    CardView --> SimilarBtn
+    CardView -.->|Mouse Hover| HoverVid
 ```
 
 ---
