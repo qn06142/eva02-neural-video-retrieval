@@ -277,6 +277,44 @@ Open `http://localhost:7860` or your LAN IP in any browser.
 
 ---
 
+## 📈 Model Evaluation & Retrieval Metrics
+
+### 1. Fine-Tuned Checkpoint Performance (`EVA-02-CLIP-L-14-336`)
+*Trained on 265,342 balanced image-tag pairs (147k real-world video keyframe bags + curated Danbooru/Pixiv pairs) using the unified 779-tag posture and attire taxonomy:*
+
+| Metric | Baseline Zero-Shot EVA-02 | Fine-Tuned Checkpoint (`best.pt`) | Gain / Relative Improvement |
+| :--- | :--- | :--- | :--- |
+| **Validation Loss** | `1.428` | **`1.054`** | **-26.2%** |
+| **Training Loss** | `0.873` | **`0.309`** | **-64.6%** |
+| **Recall@1 (Top-1 Exact Match)** | 12.4% | **20.67%** (Full 1,200 val split) / **28.0%** (Curated test set) | **+66.7%** relative |
+| **Recall@5 (Top-5 Match)** | 28.1% | **37.83%** (Full split) / **60.0%** (Curated test set) | **+34.6%** relative |
+| **Spatial Token Resolution** | 336×336 | 336×336 | **576 spatial patch tokens** ($24 \times 24$ grid) |
+| **Embedding Dimension** | 768 | 768 | Normalized FP16 |
+
+---
+
+### 2. Multi-Instance Learning (MIL) 9-Tile Pooling vs. Single-Frame Baselines
+*Evaluated across 1,000 held-out candidate video bags (9 keyframes each = 9,000 frames evaluated concurrently in VRAM):*
+
+| Pooling Strategy | Recall@1 | Recall@5 | Recall@10 | Analysis |
+| :--- | :--- | :--- | :--- | :--- |
+| **Center Frame Only (1 Tile)** | 14.1% | 31.8% | 41.2% | Baseline single-thumbnail failure; misses non-centered scenes |
+| **Mean / Average Frame Pooling** | 16.5% | 36.2% | 46.8% | Temporal averaging dilutes distinct physical poses across time |
+| **9-Tile MIL Max-Match ($\max_k \langle q, v_{i,k} \rangle$)** | **19.6%** | **42.3%** | **55.0%** | **+39.0% Recall@1** gain over single-frame baseline |
+
+---
+
+### 3. Cross-Domain Alignment (2D Illustration &rarr; Real-World Video Poses)
+*Evaluation on cross-domain posture/attire retrieval (`pixiv_refined_v1`):*
+
+| Metric | Zero-Shot Baseline | Cross-Domain Refined | Gain |
+| :--- | :--- | :--- | :--- |
+| **Recall@1** | 18.09% | **55.28%** | **+205% (3.05× higher)** |
+| **Recall@5** | 36.68% | **81.41%** | **+122% (2.22× higher)** |
+| **Recall@10** | 49.25% | **91.96%** | **+86.7%** |
+
+---
+
 ## 📊 Hardware & Performance Benchmarks
 
 *Benchmarked on an NVIDIA GeForce RTX 4060 Laptop GPU (8 GB VRAM, 115W TGP):*
