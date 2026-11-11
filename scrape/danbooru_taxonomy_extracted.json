@@ -1,0 +1,3297 @@
+{
+  "metadata": {
+    "source": "Danbooru2023 Tag Ontology (751,547 tags analyzed)",
+    "method": "Mass morphological & semantic taxonomy extraction",
+    "total_posture_classes": 157,
+    "total_clothing_classes": 1996
+  },
+  "postures": [
+    {
+      "tag": "spread_legs",
+      "search_query": "spread legs",
+      "popularity": 235963
+    },
+    {
+      "tag": "from_behind",
+      "search_query": "from behind",
+      "popularity": 211002
+    },
+    {
+      "tag": "standing_on_one_leg",
+      "search_query": "standing on one leg",
+      "popularity": 73159
+    },
+    {
+      "tag": "on_stomach",
+      "search_query": "on stomach",
+      "popularity": 59638
+    },
+    {
+      "tag": "sex_from_behind",
+      "search_query": "sex from behind",
+      "popularity": 59005
+    },
+    {
+      "tag": "bent_over",
+      "search_query": "bent over",
+      "popularity": 56944
+    },
+    {
+      "tag": "all_fours",
+      "search_query": "all fours",
+      "popularity": 54322
+    },
+    {
+      "tag": "cowgirl_position",
+      "search_query": "cowgirl position",
+      "popularity": 36364
+    },
+    {
+      "tag": "knees_together_feet_apart",
+      "search_query": "knees together feet apart",
+      "popularity": 28609
+    },
+    {
+      "tag": "doggystyle",
+      "search_query": "doggystyle",
+      "popularity": 28468
+    },
+    {
+      "tag": "missionary",
+      "search_query": "missionary",
+      "popularity": 26513
+    },
+    {
+      "tag": "paw_pose",
+      "search_query": "paw pose",
+      "popularity": 25066
+    },
+    {
+      "tag": "hug_from_behind",
+      "search_query": "hug from behind",
+      "popularity": 23393
+    },
+    {
+      "tag": "fighting_stance",
+      "search_query": "fighting stance",
+      "popularity": 21469
+    },
+    {
+      "tag": "sitting_on_person",
+      "search_query": "sitting on person",
+      "popularity": 20949
+    },
+    {
+      "tag": "grabbing_from_behind",
+      "search_query": "grabbing from behind",
+      "popularity": 19548
+    },
+    {
+      "tag": "arched_back",
+      "search_query": "arched back",
+      "popularity": 18062
+    },
+    {
+      "tag": "claw_pose",
+      "search_query": "claw pose",
+      "popularity": 15863
+    },
+    {
+      "tag": "standing_sex",
+      "search_query": "standing sex",
+      "popularity": 11932
+    },
+    {
+      "tag": "sitting_on_lap",
+      "search_query": "sitting on lap",
+      "popularity": 9914
+    },
+    {
+      "tag": "reverse_cowgirl_position",
+      "search_query": "reverse cowgirl position",
+      "popularity": 8508
+    },
+    {
+      "tag": "standing_split",
+      "search_query": "standing split",
+      "popularity": 8108
+    },
+    {
+      "tag": "the_pose",
+      "search_query": "the pose",
+      "popularity": 7696
+    },
+    {
+      "tag": "squatting_cowgirl_position",
+      "search_query": "squatting cowgirl position",
+      "popularity": 6517
+    },
+    {
+      "tag": "knees_to_chest",
+      "search_query": "knees to chest",
+      "popularity": 5585
+    },
+    {
+      "tag": "lying_on_person",
+      "search_query": "lying on person",
+      "popularity": 4619
+    },
+    {
+      "tag": "upright_straddle",
+      "search_query": "upright straddle",
+      "popularity": 4529
+    },
+    {
+      "tag": "rabbit_pose",
+      "search_query": "rabbit pose",
+      "popularity": 4095
+    },
+    {
+      "tag": "prone_bone",
+      "search_query": "prone bone",
+      "popularity": 3935
+    },
+    {
+      "tag": "wide_spread_legs",
+      "search_query": "wide spread legs",
+      "popularity": 3730
+    },
+    {
+      "tag": "reverse_upright_straddle",
+      "search_query": "reverse upright straddle",
+      "popularity": 3513
+    },
+    {
+      "tag": "fetal_position",
+      "search_query": "fetal position",
+      "popularity": 3415
+    },
+    {
+      "tag": "sitting_on_face",
+      "search_query": "sitting on face",
+      "popularity": 3373
+    },
+    {
+      "tag": "mating_press",
+      "search_query": "mating press",
+      "popularity": 3249
+    },
+    {
+      "tag": "sitting_on_desk",
+      "search_query": "sitting on desk",
+      "popularity": 3085
+    },
+    {
+      "tag": "zombie_pose",
+      "search_query": "zombie pose",
+      "popularity": 2961
+    },
+    {
+      "tag": "standing_on_liquid",
+      "search_query": "standing on liquid",
+      "popularity": 2593
+    },
+    {
+      "tag": "knees_apart_feet_together",
+      "search_query": "knees apart feet together",
+      "popularity": 2396
+    },
+    {
+      "tag": "sitting_on_stairs",
+      "search_query": "sitting on stairs",
+      "popularity": 2183
+    },
+    {
+      "tag": "leg_hold",
+      "search_query": "leg hold",
+      "popularity": 2160
+    },
+    {
+      "tag": "sitting_on_object",
+      "search_query": "sitting on object",
+      "popularity": 1958
+    },
+    {
+      "tag": "spooning",
+      "search_query": "spooning",
+      "popularity": 1638
+    },
+    {
+      "tag": "jojo_pose",
+      "search_query": "jojo pose",
+      "popularity": 1537
+    },
+    {
+      "tag": "holding_legs",
+      "search_query": "holding legs",
+      "popularity": 1398
+    },
+    {
+      "tag": "ojou-sama_pose",
+      "search_query": "ojou-sama pose",
+      "popularity": 1274
+    },
+    {
+      "tag": "sitting_on_rock",
+      "search_query": "sitting on rock",
+      "popularity": 1239
+    },
+    {
+      "tag": "arm_between_legs",
+      "search_query": "arm between legs",
+      "popularity": 1132
+    },
+    {
+      "tag": "sitting_backwards",
+      "search_query": "sitting backwards",
+      "popularity": 1105
+    },
+    {
+      "tag": "sitting_on_table",
+      "search_query": "sitting on table",
+      "popularity": 1103
+    },
+    {
+      "tag": "bowlegged_pose",
+      "search_query": "bowlegged pose",
+      "popularity": 1101
+    },
+    {
+      "tag": "ghost_pose",
+      "search_query": "ghost pose",
+      "popularity": 1020
+    },
+    {
+      "tag": "lying_on_lap",
+      "search_query": "lying on lap",
+      "popularity": 987
+    },
+    {
+      "tag": "butterfly_sitting",
+      "search_query": "butterfly sitting",
+      "popularity": 978
+    },
+    {
+      "tag": "sitting_on_shoulder",
+      "search_query": "sitting on shoulder",
+      "popularity": 953
+    },
+    {
+      "tag": "log_pose",
+      "search_query": "log pose",
+      "popularity": 828
+    },
+    {
+      "tag": "amazon_position",
+      "search_query": "amazon position",
+      "popularity": 790
+    },
+    {
+      "tag": "sitting_sideways",
+      "search_query": "sitting sideways",
+      "popularity": 755
+    },
+    {
+      "tag": "lying_on_water",
+      "search_query": "lying on water",
+      "popularity": 740
+    },
+    {
+      "tag": "dynamic_pose",
+      "search_query": "dynamic pose",
+      "popularity": 674
+    },
+    {
+      "tag": "sitting_on_water",
+      "search_query": "sitting on water",
+      "popularity": 637
+    },
+    {
+      "tag": "henshin_pose",
+      "search_query": "henshin pose",
+      "popularity": 606
+    },
+    {
+      "tag": "symmetrical_pose",
+      "search_query": "symmetrical pose",
+      "popularity": 553
+    },
+    {
+      "tag": "gendou_pose",
+      "search_query": "gendou pose",
+      "popularity": 533
+    },
+    {
+      "tag": "sitting_on_animal",
+      "search_query": "sitting on animal",
+      "popularity": 523
+    },
+    {
+      "tag": "fingering_from_behind",
+      "search_query": "fingering from behind",
+      "popularity": 519
+    },
+    {
+      "tag": "sitting_on_car",
+      "search_query": "sitting on car",
+      "popularity": 510
+    },
+    {
+      "tag": "gunbuster_pose",
+      "search_query": "gunbuster pose",
+      "popularity": 504
+    },
+    {
+      "tag": "sitting_on_branch",
+      "search_query": "sitting on branch",
+      "popularity": 492
+    },
+    {
+      "tag": "thigh_straddling",
+      "search_query": "thigh straddling",
+      "popularity": 491
+    },
+    {
+      "tag": "sitting_on_head",
+      "search_query": "sitting on head",
+      "popularity": 491
+    },
+    {
+      "tag": "symmetrical_hand_pose",
+      "search_query": "symmetrical hand pose",
+      "popularity": 457
+    },
+    {
+      "tag": "figure_four_sitting",
+      "search_query": "figure four sitting",
+      "popularity": 455
+    },
+    {
+      "tag": "horns_pose",
+      "search_query": "horns pose",
+      "popularity": 445
+    },
+    {
+      "tag": "penis_on_stomach",
+      "search_query": "penis on stomach",
+      "popularity": 442
+    },
+    {
+      "tag": "standing_on_object",
+      "search_query": "standing on object",
+      "popularity": 423
+    },
+    {
+      "tag": "standing_cunnilingus",
+      "search_query": "standing cunnilingus",
+      "popularity": 417
+    },
+    {
+      "tag": "victory_pose",
+      "search_query": "victory pose",
+      "popularity": 381
+    },
+    {
+      "tag": "standing_on_person",
+      "search_query": "standing on person",
+      "popularity": 379
+    },
+    {
+      "tag": "standing_missionary",
+      "search_query": "standing missionary",
+      "popularity": 351
+    },
+    {
+      "tag": "sitting_on_box",
+      "search_query": "sitting on box",
+      "popularity": 345
+    },
+    {
+      "tag": "sitting_on_food",
+      "search_query": "sitting on food",
+      "popularity": 342
+    },
+    {
+      "tag": "sitting_in_window",
+      "search_query": "sitting in window",
+      "popularity": 334
+    },
+    {
+      "tag": "lying_on_another",
+      "search_query": "lying on another",
+      "popularity": 326
+    },
+    {
+      "tag": "vocaloid_boxart_pose",
+      "search_query": "vocaloid boxart pose",
+      "popularity": 317
+    },
+    {
+      "tag": "double_biceps_pose",
+      "search_query": "double biceps pose",
+      "popularity": 314
+    },
+    {
+      "tag": "battoujutsu_stance",
+      "search_query": "battoujutsu stance",
+      "popularity": 307
+    },
+    {
+      "tag": "sitting_on_pillow",
+      "search_query": "sitting on pillow",
+      "popularity": 302
+    },
+    {
+      "tag": "hoshino_ai's_pose",
+      "search_query": "hoshino ai's pose",
+      "popularity": 291
+    },
+    {
+      "tag": "sitting_on_throne",
+      "search_query": "sitting on throne",
+      "popularity": 270
+    },
+    {
+      "tag": "slav_squatting",
+      "search_query": "slav squatting",
+      "popularity": 260
+    },
+    {
+      "tag": "sitting_on_roof",
+      "search_query": "sitting on roof",
+      "popularity": 258
+    },
+    {
+      "tag": "dojikko_pose",
+      "search_query": "dojikko pose",
+      "popularity": 249
+    },
+    {
+      "tag": "standing_double_penetration",
+      "search_query": "standing double penetration",
+      "popularity": 216
+    },
+    {
+      "tag": "sitting_on_torii",
+      "search_query": "sitting on torii",
+      "popularity": 199
+    },
+    {
+      "tag": "object_insertion_from_behind",
+      "search_query": "object insertion from behind",
+      "popularity": 171
+    },
+    {
+      "tag": "sitting_on_log",
+      "search_query": "sitting on log",
+      "popularity": 169
+    },
+    {
+      "tag": "sitting_on_ball",
+      "search_query": "sitting on ball",
+      "popularity": 167
+    },
+    {
+      "tag": "sitting_on_arm",
+      "search_query": "sitting on arm",
+      "popularity": 167
+    },
+    {
+      "tag": "inugami-ke_no_ichizoku_pose",
+      "search_query": "inugami-ke no ichizoku pose",
+      "popularity": 165
+    },
+    {
+      "tag": "sitting_on_hand",
+      "search_query": "sitting on hand",
+      "popularity": 163
+    },
+    {
+      "tag": "standing_on_three_legs",
+      "search_query": "standing on three legs",
+      "popularity": 161
+    },
+    {
+      "tag": "hands_on_stomach",
+      "search_query": "hands on stomach",
+      "popularity": 160
+    },
+    {
+      "tag": "sitting_on_fence",
+      "search_query": "sitting on fence",
+      "popularity": 159
+    },
+    {
+      "tag": "ganbaru_pose",
+      "search_query": "ganbaru pose",
+      "popularity": 159
+    },
+    {
+      "tag": "sitting_between_lap",
+      "search_query": "sitting between lap",
+      "popularity": 156
+    },
+    {
+      "tag": "yotsubato!_pose",
+      "search_query": "yotsubato! pose",
+      "popularity": 155
+    },
+    {
+      "tag": "sitting_on_wall",
+      "search_query": "sitting on wall",
+      "popularity": 144
+    },
+    {
+      "tag": "ginyu_force_pose",
+      "search_query": "ginyu force pose",
+      "popularity": 143
+    },
+    {
+      "tag": "standing_on_another's_head",
+      "search_query": "standing on another's head",
+      "popularity": 141
+    },
+    {
+      "tag": "myoukou_pose",
+      "search_query": "myoukou pose",
+      "popularity": 140
+    },
+    {
+      "tag": "standing_on_chair",
+      "search_query": "standing on chair",
+      "popularity": 130
+    },
+    {
+      "tag": "standing_restraints",
+      "search_query": "standing restraints",
+      "popularity": 128
+    },
+    {
+      "tag": "kongou_pose",
+      "search_query": "kongou pose",
+      "popularity": 124
+    },
+    {
+      "tag": "kneeling_on_liquid",
+      "search_query": "kneeling on liquid",
+      "popularity": 121
+    },
+    {
+      "tag": "ga_rune_pose",
+      "search_query": "ga rune pose",
+      "popularity": 121
+    },
+    {
+      "tag": "lotus_position",
+      "search_query": "lotus position",
+      "popularity": 114
+    },
+    {
+      "tag": "colombia_pose",
+      "search_query": "colombia pose",
+      "popularity": 114
+    },
+    {
+      "tag": "sitting_on_drum",
+      "search_query": "sitting on drum",
+      "popularity": 113
+    },
+    {
+      "tag": "villain_pose",
+      "search_query": "villain pose",
+      "popularity": 112
+    },
+    {
+      "tag": "standing_anilingus",
+      "search_query": "standing anilingus",
+      "popularity": 111
+    },
+    {
+      "tag": "standing_leg_lock",
+      "search_query": "standing leg lock",
+      "popularity": 109
+    },
+    {
+      "tag": "pigeon_pose",
+      "search_query": "pigeon pose",
+      "popularity": 106
+    },
+    {
+      "tag": "spread_eagle_position",
+      "search_query": "spread eagle position",
+      "popularity": 103
+    },
+    {
+      "tag": "pretzel_pose",
+      "search_query": "pretzel pose",
+      "popularity": 97
+    },
+    {
+      "tag": "cure_black_pose",
+      "search_query": "cure black pose",
+      "popularity": 95
+    },
+    {
+      "tag": "standing_on_shoulder",
+      "search_query": "standing on shoulder",
+      "popularity": 94
+    },
+    {
+      "tag": "sitting_against_vehicle",
+      "search_query": "sitting against vehicle",
+      "popularity": 94
+    },
+    {
+      "tag": "kamina_pose",
+      "search_query": "kamina pose",
+      "popularity": 91
+    },
+    {
+      "tag": "lying_on_animal",
+      "search_query": "lying on animal",
+      "popularity": 89
+    },
+    {
+      "tag": "sitting_on_books",
+      "search_query": "sitting on books",
+      "popularity": 89
+    },
+    {
+      "tag": "sitting_on_own_tail",
+      "search_query": "sitting on own tail",
+      "popularity": 88
+    },
+    {
+      "tag": "shimushu_pose",
+      "search_query": "shimushu pose",
+      "popularity": 82
+    },
+    {
+      "tag": "standing_on_branch",
+      "search_query": "standing on branch",
+      "popularity": 81
+    },
+    {
+      "tag": "cure_white_pose",
+      "search_query": "cure white pose",
+      "popularity": 80
+    },
+    {
+      "tag": "z-move_trainer_pose",
+      "search_query": "z-move trainer pose",
+      "popularity": 79
+    },
+    {
+      "tag": "charizard_pose",
+      "search_query": "charizard pose",
+      "popularity": 75
+    },
+    {
+      "tag": "sitting_on_tail",
+      "search_query": "sitting on tail",
+      "popularity": 74
+    },
+    {
+      "tag": "golshi's_first_place_pose",
+      "search_query": "golshi's first place pose",
+      "popularity": 72
+    },
+    {
+      "tag": "standing_on_torii",
+      "search_query": "standing on torii",
+      "popularity": 69
+    },
+    {
+      "tag": "haigure_pose",
+      "search_query": "haigure pose",
+      "popularity": 68
+    },
+    {
+      "tag": "footjob_from_behind",
+      "search_query": "footjob from behind",
+      "popularity": 67
+    },
+    {
+      "tag": "sitting_on_liquid",
+      "search_query": "sitting on liquid",
+      "popularity": 66
+    },
+    {
+      "tag": "sitting_on_hair",
+      "search_query": "sitting on hair",
+      "popularity": 66
+    },
+    {
+      "tag": "standing_on_box",
+      "search_query": "standing on box",
+      "popularity": 66
+    },
+    {
+      "tag": "crane_stance",
+      "search_query": "crane stance",
+      "popularity": 65
+    },
+    {
+      "tag": "lying_on_ball",
+      "search_query": "lying on ball",
+      "popularity": 65
+    },
+    {
+      "tag": "senjougahara_pose",
+      "search_query": "senjougahara pose",
+      "popularity": 63
+    },
+    {
+      "tag": "standing_fellatio",
+      "search_query": "standing fellatio",
+      "popularity": 62
+    },
+    {
+      "tag": "poptepipic_pose",
+      "search_query": "poptepipic pose",
+      "popularity": 60
+    },
+    {
+      "tag": "standing_at_attention",
+      "search_query": "standing at attention",
+      "popularity": 60
+    },
+    {
+      "tag": "sitting_on_mushroom",
+      "search_query": "sitting on mushroom",
+      "popularity": 59
+    },
+    {
+      "tag": "subarashii_pose",
+      "search_query": "subarashii pose",
+      "popularity": 58
+    },
+    {
+      "tag": "horse_pose",
+      "search_query": "horse pose",
+      "popularity": 57
+    },
+    {
+      "tag": "uterus_pose",
+      "search_query": "uterus pose",
+      "popularity": 55
+    },
+    {
+      "tag": "saboten_pose",
+      "search_query": "saboten pose",
+      "popularity": 53
+    },
+    {
+      "tag": "pillow_straddling",
+      "search_query": "pillow straddling",
+      "popularity": 52
+    },
+    {
+      "tag": "half_lotus_position",
+      "search_query": "half lotus position",
+      "popularity": 50
+    }
+  ],
+  "clothing": [
+    {
+      "tag": "long_sleeves",
+      "search_query": "long sleeves",
+      "popularity": 1352550
+    },
+    {
+      "tag": "school_uniform",
+      "search_query": "school uniform",
+      "popularity": 736060
+    },
+    {
+      "tag": "white_shirt",
+      "search_query": "white shirt",
+      "popularity": 728153
+    },
+    {
+      "tag": "short_sleeves",
+      "search_query": "short sleeves",
+      "popularity": 556234
+    },
+    {
+      "tag": "pleated_skirt",
+      "search_query": "pleated skirt",
+      "popularity": 456540
+    },
+    {
+      "tag": "detached_sleeves",
+      "search_query": "detached sleeves",
+      "popularity": 388643
+    },
+    {
+      "tag": "collared_shirt",
+      "search_query": "collared shirt",
+      "popularity": 379598
+    },
+    {
+      "tag": "alternate_costume",
+      "search_query": "alternate costume",
+      "popularity": 370435
+    },
+    {
+      "tag": "puffy_sleeves",
+      "search_query": "puffy sleeves",
+      "popularity": 313352
+    },
+    {
+      "tag": "serafuku",
+      "search_query": "serafuku",
+      "popularity": 300491
+    },
+    {
+      "tag": "black_thighhighs",
+      "search_query": "black thighhighs",
+      "popularity": 290958
+    },
+    {
+      "tag": "black_skirt",
+      "search_query": "black skirt",
+      "popularity": 263318
+    },
+    {
+      "tag": "official_alternate_costume",
+      "search_query": "official alternate costume",
+      "popularity": 262766
+    },
+    {
+      "tag": "sailor_collar",
+      "search_query": "sailor collar",
+      "popularity": 244738
+    },
+    {
+      "tag": "wide_sleeves",
+      "search_query": "wide sleeves",
+      "popularity": 236135
+    },
+    {
+      "tag": "white_dress",
+      "search_query": "white dress",
+      "popularity": 230267
+    },
+    {
+      "tag": "black_dress",
+      "search_query": "black dress",
+      "popularity": 205980
+    },
+    {
+      "tag": "open_jacket",
+      "search_query": "open jacket",
+      "popularity": 203873
+    },
+    {
+      "tag": "black_jacket",
+      "search_query": "black jacket",
+      "popularity": 195783
+    },
+    {
+      "tag": "white_thighhighs",
+      "search_query": "white thighhighs",
+      "popularity": 193974
+    },
+    {
+      "tag": "high_heels",
+      "search_query": "high heels",
+      "popularity": 179706
+    },
+    {
+      "tag": "black_shirt",
+      "search_query": "black shirt",
+      "popularity": 176029
+    },
+    {
+      "tag": "white_panties",
+      "search_query": "white panties",
+      "popularity": 175842
+    },
+    {
+      "tag": "puffy_short_sleeves",
+      "search_query": "puffy short sleeves",
+      "popularity": 158526
+    },
+    {
+      "tag": "blue_skirt",
+      "search_query": "blue skirt",
+      "popularity": 157128
+    },
+    {
+      "tag": "maid",
+      "search_query": "maid",
+      "popularity": 133819
+    },
+    {
+      "tag": "sleeveless_shirt",
+      "search_query": "sleeveless shirt",
+      "popularity": 132587
+    },
+    {
+      "tag": "sleeveless_dress",
+      "search_query": "sleeveless dress",
+      "popularity": 132286
+    },
+    {
+      "tag": "maid_headdress",
+      "search_query": "maid headdress",
+      "popularity": 129205
+    },
+    {
+      "tag": "one-piece_swimsuit",
+      "search_query": "one-piece swimsuit",
+      "popularity": 128177
+    },
+    {
+      "tag": "short_shorts",
+      "search_query": "short shorts",
+      "popularity": 127854
+    },
+    {
+      "tag": "black_panties",
+      "search_query": "black panties",
+      "popularity": 124001
+    },
+    {
+      "tag": "detached_collar",
+      "search_query": "detached collar",
+      "popularity": 117880
+    },
+    {
+      "tag": "black_pants",
+      "search_query": "black pants",
+      "popularity": 115086
+    },
+    {
+      "tag": "dress_shirt",
+      "search_query": "dress shirt",
+      "popularity": 112535
+    },
+    {
+      "tag": "open_shirt",
+      "search_query": "open shirt",
+      "popularity": 109438
+    },
+    {
+      "tag": "blue_dress",
+      "search_query": "blue dress",
+      "popularity": 107269
+    },
+    {
+      "tag": "black_bikini",
+      "search_query": "black bikini",
+      "popularity": 102649
+    },
+    {
+      "tag": "black_shorts",
+      "search_query": "black shorts",
+      "popularity": 102029
+    },
+    {
+      "tag": "red_skirt",
+      "search_query": "red skirt",
+      "popularity": 99543
+    },
+    {
+      "tag": "no_bra",
+      "search_query": "no bra",
+      "popularity": 97409
+    },
+    {
+      "tag": "white_jacket",
+      "search_query": "white jacket",
+      "popularity": 95998
+    },
+    {
+      "tag": "military_uniform",
+      "search_query": "military uniform",
+      "popularity": 91946
+    },
+    {
+      "tag": "no_panties",
+      "search_query": "no panties",
+      "popularity": 91002
+    },
+    {
+      "tag": "white_bikini",
+      "search_query": "white bikini",
+      "popularity": 86278
+    },
+    {
+      "tag": "plaid_skirt",
+      "search_query": "plaid skirt",
+      "popularity": 84276
+    },
+    {
+      "tag": "blue_shirt",
+      "search_query": "blue shirt",
+      "popularity": 82758
+    },
+    {
+      "tag": "thigh_boots",
+      "search_query": "thigh boots",
+      "popularity": 82534
+    },
+    {
+      "tag": "red_dress",
+      "search_query": "red dress",
+      "popularity": 81728
+    },
+    {
+      "tag": "short_dress",
+      "search_query": "short dress",
+      "popularity": 80648
+    },
+    {
+      "tag": "blue_jacket",
+      "search_query": "blue jacket",
+      "popularity": 80380
+    },
+    {
+      "tag": "frilled_dress",
+      "search_query": "frilled dress",
+      "popularity": 80319
+    },
+    {
+      "tag": "white_skirt",
+      "search_query": "white skirt",
+      "popularity": 78541
+    },
+    {
+      "tag": "garter_straps",
+      "search_query": "garter straps",
+      "popularity": 78252
+    },
+    {
+      "tag": "frilled_skirt",
+      "search_query": "frilled skirt",
+      "popularity": 67579
+    },
+    {
+      "tag": "frilled_sleeves",
+      "search_query": "frilled sleeves",
+      "popularity": 66273
+    },
+    {
+      "tag": "knee_boots",
+      "search_query": "knee boots",
+      "popularity": 61089
+    },
+    {
+      "tag": "school_swimsuit",
+      "search_query": "school swimsuit",
+      "popularity": 60524
+    },
+    {
+      "tag": "juliet_sleeves",
+      "search_query": "juliet sleeves",
+      "popularity": 60471
+    },
+    {
+      "tag": "red_shirt",
+      "search_query": "red shirt",
+      "popularity": 60188
+    },
+    {
+      "tag": "white_apron",
+      "search_query": "white apron",
+      "popularity": 59672
+    },
+    {
+      "tag": "black_leotard",
+      "search_query": "black leotard",
+      "popularity": 58510
+    },
+    {
+      "tag": "wing_collar",
+      "search_query": "wing collar",
+      "popularity": 56875
+    },
+    {
+      "tag": "blue_sailor_collar",
+      "search_query": "blue sailor collar",
+      "popularity": 56254
+    },
+    {
+      "tag": "green_skirt",
+      "search_query": "green skirt",
+      "popularity": 54979
+    },
+    {
+      "tag": "lingerie",
+      "search_query": "lingerie",
+      "popularity": 54498
+    },
+    {
+      "tag": "grey_shirt",
+      "search_query": "grey shirt",
+      "popularity": 54381
+    },
+    {
+      "tag": "black_bra",
+      "search_query": "black bra",
+      "popularity": 54266
+    },
+    {
+      "tag": "striped_thighhighs",
+      "search_query": "striped thighhighs",
+      "popularity": 54176
+    },
+    {
+      "tag": "strapless_leotard",
+      "search_query": "strapless leotard",
+      "popularity": 53008
+    },
+    {
+      "tag": "pink_dress",
+      "search_query": "pink dress",
+      "popularity": 52909
+    },
+    {
+      "tag": "hooded_jacket",
+      "search_query": "hooded jacket",
+      "popularity": 52295
+    },
+    {
+      "tag": "puffy_long_sleeves",
+      "search_query": "puffy long sleeves",
+      "popularity": 50058
+    },
+    {
+      "tag": "red_jacket",
+      "search_query": "red jacket",
+      "popularity": 49190
+    },
+    {
+      "tag": "no_pants",
+      "search_query": "no pants",
+      "popularity": 48725
+    },
+    {
+      "tag": "bike_shorts",
+      "search_query": "bike shorts",
+      "popularity": 48265
+    },
+    {
+      "tag": "china_dress",
+      "search_query": "china dress",
+      "popularity": 47759
+    },
+    {
+      "tag": "adapted_costume",
+      "search_query": "adapted costume",
+      "popularity": 47053
+    },
+    {
+      "tag": "strapless_dress",
+      "search_query": "strapless dress",
+      "popularity": 46063
+    },
+    {
+      "tag": "pink_panties",
+      "search_query": "pink panties",
+      "popularity": 46034
+    },
+    {
+      "tag": "waist_apron",
+      "search_query": "waist apron",
+      "popularity": 45361
+    },
+    {
+      "tag": "purple_dress",
+      "search_query": "purple dress",
+      "popularity": 43656
+    },
+    {
+      "tag": "string_bikini",
+      "search_query": "string bikini",
+      "popularity": 43403
+    },
+    {
+      "tag": "highleg_leotard",
+      "search_query": "highleg leotard",
+      "popularity": 43356
+    },
+    {
+      "tag": "grey_skirt",
+      "search_query": "grey skirt",
+      "popularity": 43191
+    },
+    {
+      "tag": "maid_apron",
+      "search_query": "maid apron",
+      "popularity": 42602
+    },
+    {
+      "tag": "white_sleeves",
+      "search_query": "white sleeves",
+      "popularity": 42158
+    },
+    {
+      "tag": "cropped_jacket",
+      "search_query": "cropped jacket",
+      "popularity": 41987
+    },
+    {
+      "tag": "striped_panties",
+      "search_query": "striped panties",
+      "popularity": 41188
+    },
+    {
+      "tag": "white_sailor_collar",
+      "search_query": "white sailor collar",
+      "popularity": 40714
+    },
+    {
+      "tag": "micro_bikini",
+      "search_query": "micro bikini",
+      "popularity": 39893
+    },
+    {
+      "tag": "corset",
+      "search_query": "corset",
+      "popularity": 39831
+    },
+    {
+      "tag": "side-tie_panties",
+      "search_query": "side-tie panties",
+      "popularity": 39796
+    },
+    {
+      "tag": "bow_panties",
+      "search_query": "bow panties",
+      "popularity": 39290
+    },
+    {
+      "tag": "blue_bikini",
+      "search_query": "blue bikini",
+      "popularity": 37364
+    },
+    {
+      "tag": "hakama_skirt",
+      "search_query": "hakama skirt",
+      "popularity": 37124
+    },
+    {
+      "tag": "black_sailor_collar",
+      "search_query": "black sailor collar",
+      "popularity": 36867
+    },
+    {
+      "tag": "pink_skirt",
+      "search_query": "pink skirt",
+      "popularity": 36382
+    },
+    {
+      "tag": "blue_shorts",
+      "search_query": "blue shorts",
+      "popularity": 36374
+    },
+    {
+      "tag": "pink_shirt",
+      "search_query": "pink shirt",
+      "popularity": 36074
+    },
+    {
+      "tag": "frilled_apron",
+      "search_query": "frilled apron",
+      "popularity": 35825
+    },
+    {
+      "tag": "black_vest",
+      "search_query": "black vest",
+      "popularity": 35703
+    },
+    {
+      "tag": "track_jacket",
+      "search_query": "track jacket",
+      "popularity": 35123
+    },
+    {
+      "tag": "sweater_vest",
+      "search_query": "sweater vest",
+      "popularity": 34735
+    },
+    {
+      "tag": "pencil_skirt",
+      "search_query": "pencil skirt",
+      "popularity": 34624
+    },
+    {
+      "tag": "high_heel_boots",
+      "search_query": "high heel boots",
+      "popularity": 34571
+    },
+    {
+      "tag": "frilled_bikini",
+      "search_query": "frilled bikini",
+      "popularity": 33205
+    },
+    {
+      "tag": "yellow_shirt",
+      "search_query": "yellow shirt",
+      "popularity": 33098
+    },
+    {
+      "tag": "green_dress",
+      "search_query": "green dress",
+      "popularity": 32991
+    },
+    {
+      "tag": "high_collar",
+      "search_query": "high collar",
+      "popularity": 32952
+    },
+    {
+      "tag": "frilled_shirt_collar",
+      "search_query": "frilled shirt collar",
+      "popularity": 32674
+    },
+    {
+      "tag": "white_pants",
+      "search_query": "white pants",
+      "popularity": 32650
+    },
+    {
+      "tag": "high-waist_skirt",
+      "search_query": "high-waist skirt",
+      "popularity": 31937
+    },
+    {
+      "tag": "brown_jacket",
+      "search_query": "brown jacket",
+      "popularity": 31755
+    },
+    {
+      "tag": "purple_skirt",
+      "search_query": "purple skirt",
+      "popularity": 31377
+    },
+    {
+      "tag": "long_skirt",
+      "search_query": "long skirt",
+      "popularity": 31330
+    },
+    {
+      "tag": "green_jacket",
+      "search_query": "green jacket",
+      "popularity": 30980
+    },
+    {
+      "tag": "red_bikini",
+      "search_query": "red bikini",
+      "popularity": 30906
+    },
+    {
+      "tag": "white_bra",
+      "search_query": "white bra",
+      "popularity": 30825
+    },
+    {
+      "tag": "grey_jacket",
+      "search_query": "grey jacket",
+      "popularity": 30605
+    },
+    {
+      "tag": "brown_skirt",
+      "search_query": "brown skirt",
+      "popularity": 30222
+    },
+    {
+      "tag": "white_shorts",
+      "search_query": "white shorts",
+      "popularity": 30132
+    },
+    {
+      "tag": "gym_uniform",
+      "search_query": "gym uniform",
+      "popularity": 30075
+    },
+    {
+      "tag": "sailor_dress",
+      "search_query": "sailor dress",
+      "popularity": 29944
+    },
+    {
+      "tag": "denim_shorts",
+      "search_query": "denim shorts",
+      "popularity": 29736
+    },
+    {
+      "tag": "ribbon-trimmed_sleeves",
+      "search_query": "ribbon-trimmed sleeves",
+      "popularity": 29562
+    },
+    {
+      "tag": "black_serafuku",
+      "search_query": "black serafuku",
+      "popularity": 28641
+    },
+    {
+      "tag": "competition_swimsuit",
+      "search_query": "competition swimsuit",
+      "popularity": 28575
+    },
+    {
+      "tag": "sports_bra",
+      "search_query": "sports bra",
+      "popularity": 28074
+    },
+    {
+      "tag": "santa_costume",
+      "search_query": "santa costume",
+      "popularity": 28059
+    },
+    {
+      "tag": "green_shirt",
+      "search_query": "green shirt",
+      "popularity": 27934
+    },
+    {
+      "tag": "fur_collar",
+      "search_query": "fur collar",
+      "popularity": 27903
+    },
+    {
+      "tag": "black_sleeves",
+      "search_query": "black sleeves",
+      "popularity": 27796
+    },
+    {
+      "tag": "striped_shirt",
+      "search_query": "striped shirt",
+      "popularity": 27741
+    },
+    {
+      "tag": "white_kimono",
+      "search_query": "white kimono",
+      "popularity": 27654
+    },
+    {
+      "tag": "garter_belt",
+      "search_query": "garter belt",
+      "popularity": 27533
+    },
+    {
+      "tag": "blue_one-piece_swimsuit",
+      "search_query": "blue one-piece swimsuit",
+      "popularity": 27508
+    },
+    {
+      "tag": "blue_pants",
+      "search_query": "blue pants",
+      "popularity": 26775
+    },
+    {
+      "tag": "purple_shirt",
+      "search_query": "purple shirt",
+      "popularity": 26403
+    },
+    {
+      "tag": "white_leotard",
+      "search_query": "white leotard",
+      "popularity": 25078
+    },
+    {
+      "tag": "collared_dress",
+      "search_query": "collared dress",
+      "popularity": 24973
+    },
+    {
+      "tag": "striped_bikini",
+      "search_query": "striped bikini",
+      "popularity": 24657
+    },
+    {
+      "tag": "enmaided",
+      "search_query": "enmaided",
+      "popularity": 24401
+    },
+    {
+      "tag": "long_dress",
+      "search_query": "long dress",
+      "popularity": 24266
+    },
+    {
+      "tag": "off-shoulder_dress",
+      "search_query": "off-shoulder dress",
+      "popularity": 23144
+    },
+    {
+      "tag": "black_bodysuit",
+      "search_query": "black bodysuit",
+      "popularity": 23069
+    },
+    {
+      "tag": "blue_panties",
+      "search_query": "blue panties",
+      "popularity": 22930
+    },
+    {
+      "tag": "winter_uniform",
+      "search_query": "winter uniform",
+      "popularity": 22692
+    },
+    {
+      "tag": "pink_jacket",
+      "search_query": "pink jacket",
+      "popularity": 22312
+    },
+    {
+      "tag": "red_cape",
+      "search_query": "red cape",
+      "popularity": 22181
+    },
+    {
+      "tag": "black_one-piece_swimsuit",
+      "search_query": "black one-piece swimsuit",
+      "popularity": 22108
+    },
+    {
+      "tag": "fur-trimmed_jacket",
+      "search_query": "fur-trimmed jacket",
+      "popularity": 21586
+    },
+    {
+      "tag": "blue_kimono",
+      "search_query": "blue kimono",
+      "popularity": 21476
+    },
+    {
+      "tag": "wedding_dress",
+      "search_query": "wedding dress",
+      "popularity": 21169
+    },
+    {
+      "tag": "blue_leotard",
+      "search_query": "blue leotard",
+      "popularity": 20930
+    },
+    {
+      "tag": "black_cape",
+      "search_query": "black cape",
+      "popularity": 20906
+    },
+    {
+      "tag": "red_vest",
+      "search_query": "red vest",
+      "popularity": 20696
+    },
+    {
+      "tag": "off-shoulder_shirt",
+      "search_query": "off-shoulder shirt",
+      "popularity": 20654
+    },
+    {
+      "tag": "black_collar",
+      "search_query": "black collar",
+      "popularity": 20508
+    },
+    {
+      "tag": "white_one-piece_swimsuit",
+      "search_query": "white one-piece swimsuit",
+      "popularity": 19780
+    },
+    {
+      "tag": "suspender_skirt",
+      "search_query": "suspender skirt",
+      "popularity": 19721
+    },
+    {
+      "tag": "highleg_panties",
+      "search_query": "highleg panties",
+      "popularity": 19418
+    },
+    {
+      "tag": "tracen_school_uniform",
+      "search_query": "tracen school uniform",
+      "popularity": 19360
+    },
+    {
+      "tag": "pink_bra",
+      "search_query": "pink bra",
+      "popularity": 19250
+    },
+    {
+      "tag": "pink_bikini",
+      "search_query": "pink bikini",
+      "popularity": 19214
+    },
+    {
+      "tag": "brown_dress",
+      "search_query": "brown dress",
+      "popularity": 19206
+    },
+    {
+      "tag": "grey_pants",
+      "search_query": "grey pants",
+      "popularity": 18862
+    },
+    {
+      "tag": "frilled_shirt",
+      "search_query": "frilled shirt",
+      "popularity": 18856
+    },
+    {
+      "tag": "yellow_jacket",
+      "search_query": "yellow jacket",
+      "popularity": 18816
+    },
+    {
+      "tag": "pinafore_dress",
+      "search_query": "pinafore dress",
+      "popularity": 18722
+    },
+    {
+      "tag": "brown_shirt",
+      "search_query": "brown shirt",
+      "popularity": 18628
+    },
+    {
+      "tag": "sailor_shirt",
+      "search_query": "sailor shirt",
+      "popularity": 18603
+    },
+    {
+      "tag": "brown_thighhighs",
+      "search_query": "brown thighhighs",
+      "popularity": 18464
+    },
+    {
+      "tag": "layered_sleeves",
+      "search_query": "layered sleeves",
+      "popularity": 18426
+    },
+    {
+      "tag": "summer_uniform",
+      "search_query": "summer uniform",
+      "popularity": 17982
+    },
+    {
+      "tag": "pleated_dress",
+      "search_query": "pleated dress",
+      "popularity": 17234
+    },
+    {
+      "tag": "highleg_swimsuit",
+      "search_query": "highleg swimsuit",
+      "popularity": 17125
+    },
+    {
+      "tag": "purple_jacket",
+      "search_query": "purple jacket",
+      "popularity": 16672
+    },
+    {
+      "tag": "brown_pants",
+      "search_query": "brown pants",
+      "popularity": 16578
+    },
+    {
+      "tag": "grey_dress",
+      "search_query": "grey dress",
+      "popularity": 16436
+    },
+    {
+      "tag": "print_bikini",
+      "search_query": "print bikini",
+      "popularity": 16364
+    },
+    {
+      "tag": "lace-up_boots",
+      "search_query": "lace-up boots",
+      "popularity": 16254
+    },
+    {
+      "tag": "black_kimono",
+      "search_query": "black kimono",
+      "popularity": 16190
+    },
+    {
+      "tag": "ankle_boots",
+      "search_query": "ankle boots",
+      "popularity": 16117
+    },
+    {
+      "tag": "blue_thighhighs",
+      "search_query": "blue thighhighs",
+      "popularity": 16059
+    },
+    {
+      "tag": "two-tone_dress",
+      "search_query": "two-tone dress",
+      "popularity": 15659
+    },
+    {
+      "tag": "purple_bikini",
+      "search_query": "purple bikini",
+      "popularity": 15635
+    },
+    {
+      "tag": "cropped_shirt",
+      "search_query": "cropped shirt",
+      "popularity": 15631
+    },
+    {
+      "tag": "black_hoodie",
+      "search_query": "black hoodie",
+      "popularity": 15616
+    },
+    {
+      "tag": "print_kimono",
+      "search_query": "print kimono",
+      "popularity": 15540
+    },
+    {
+      "tag": "red_kimono",
+      "search_query": "red kimono",
+      "popularity": 15466
+    },
+    {
+      "tag": "armored_boots",
+      "search_query": "armored boots",
+      "popularity": 15435
+    },
+    {
+      "tag": "blue_vest",
+      "search_query": "blue vest",
+      "popularity": 14947
+    },
+    {
+      "tag": "armored_dress",
+      "search_query": "armored dress",
+      "popularity": 14838
+    },
+    {
+      "tag": "bridal_garter",
+      "search_query": "bridal garter",
+      "popularity": 14815
+    },
+    {
+      "tag": "wet_shirt",
+      "search_query": "wet shirt",
+      "popularity": 14797
+    },
+    {
+      "tag": "animal_costume",
+      "search_query": "animal costume",
+      "popularity": 14608
+    },
+    {
+      "tag": "naked_shirt",
+      "search_query": "naked shirt",
+      "popularity": 14534
+    },
+    {
+      "tag": "halloween_costume",
+      "search_query": "halloween costume",
+      "popularity": 14526
+    },
+    {
+      "tag": "fishnet_thighhighs",
+      "search_query": "fishnet thighhighs",
+      "popularity": 14237
+    },
+    {
+      "tag": "purple_thighhighs",
+      "search_query": "purple thighhighs",
+      "popularity": 14232
+    },
+    {
+      "tag": "yellow_bikini",
+      "search_query": "yellow bikini",
+      "popularity": 14189
+    },
+    {
+      "tag": "yellow_dress",
+      "search_query": "yellow dress",
+      "popularity": 14135
+    },
+    {
+      "tag": "print_shirt",
+      "search_query": "print shirt",
+      "popularity": 14069
+    },
+    {
+      "tag": "red_thighhighs",
+      "search_query": "red thighhighs",
+      "popularity": 13919
+    },
+    {
+      "tag": "white_cape",
+      "search_query": "white cape",
+      "popularity": 13791
+    },
+    {
+      "tag": "pink_kimono",
+      "search_query": "pink kimono",
+      "popularity": 13789
+    },
+    {
+      "tag": "red_shorts",
+      "search_query": "red shorts",
+      "popularity": 13724
+    },
+    {
+      "tag": "pilot_suit",
+      "search_query": "pilot suit",
+      "popularity": 13651
+    },
+    {
+      "tag": "bow_bra",
+      "search_query": "bow bra",
+      "popularity": 13520
+    },
+    {
+      "tag": "red_panties",
+      "search_query": "red panties",
+      "popularity": 13448
+    },
+    {
+      "tag": "highleg_bikini",
+      "search_query": "highleg bikini",
+      "popularity": 13423
+    },
+    {
+      "tag": "purple_panties",
+      "search_query": "purple panties",
+      "popularity": 13236
+    },
+    {
+      "tag": "backless_dress",
+      "search_query": "backless dress",
+      "popularity": 13075
+    },
+    {
+      "tag": "naval_uniform",
+      "search_query": "naval uniform",
+      "popularity": 13032
+    },
+    {
+      "tag": "white_collar",
+      "search_query": "white collar",
+      "popularity": 12985
+    },
+    {
+      "tag": "layered_dress",
+      "search_query": "layered dress",
+      "popularity": 12969
+    },
+    {
+      "tag": "torn_thighhighs",
+      "search_query": "torn thighhighs",
+      "popularity": 12794
+    },
+    {
+      "tag": "tied_shirt",
+      "search_query": "tied shirt",
+      "popularity": 12632
+    },
+    {
+      "tag": "hakama_short_skirt",
+      "search_query": "hakama short skirt",
+      "popularity": 12506
+    },
+    {
+      "tag": "layered_skirt",
+      "search_query": "layered skirt",
+      "popularity": 12481
+    },
+    {
+      "tag": "red_leotard",
+      "search_query": "red leotard",
+      "popularity": 12417
+    },
+    {
+      "tag": "bikini_skirt",
+      "search_query": "bikini skirt",
+      "popularity": 12396
+    },
+    {
+      "tag": "green_bikini",
+      "search_query": "green bikini",
+      "popularity": 12372
+    },
+    {
+      "tag": "string_panties",
+      "search_query": "string panties",
+      "popularity": 12253
+    },
+    {
+      "tag": "pantyhose_under_shorts",
+      "search_query": "pantyhose under shorts",
+      "popularity": 12231
+    },
+    {
+      "tag": "kita_high_school_uniform",
+      "search_query": "kita high school uniform",
+      "popularity": 12161
+    },
+    {
+      "tag": "short_kimono",
+      "search_query": "short kimono",
+      "popularity": 12132
+    },
+    {
+      "tag": "yellow_skirt",
+      "search_query": "yellow skirt",
+      "popularity": 12072
+    },
+    {
+      "tag": "casual_one-piece_swimsuit",
+      "search_query": "casual one-piece swimsuit",
+      "popularity": 12071
+    },
+    {
+      "tag": "short_over_long_sleeves",
+      "search_query": "short over long sleeves",
+      "popularity": 11974
+    },
+    {
+      "tag": "white_hoodie",
+      "search_query": "white hoodie",
+      "popularity": 11898
+    },
+    {
+      "tag": "blue_cape",
+      "search_query": "blue cape",
+      "popularity": 11808
+    },
+    {
+      "tag": "lace-trimmed_bra",
+      "search_query": "lace-trimmed bra",
+      "popularity": 11685
+    },
+    {
+      "tag": "lace-trimmed_panties",
+      "search_query": "lace-trimmed panties",
+      "popularity": 11643
+    },
+    {
+      "tag": "red_pants",
+      "search_query": "red pants",
+      "popularity": 11613
+    },
+    {
+      "tag": "orange_shirt",
+      "search_query": "orange shirt",
+      "popularity": 11480
+    },
+    {
+      "tag": "raglan_sleeves",
+      "search_query": "raglan sleeves",
+      "popularity": 11407
+    },
+    {
+      "tag": "purple_kimono",
+      "search_query": "purple kimono",
+      "popularity": 11400
+    },
+    {
+      "tag": "blue_bra",
+      "search_query": "blue bra",
+      "popularity": 11370
+    },
+    {
+      "tag": "mitakihara_school_uniform",
+      "search_query": "mitakihara school uniform",
+      "popularity": 11198
+    },
+    {
+      "tag": "o-ring_bikini",
+      "search_query": "o-ring bikini",
+      "popularity": 11172
+    },
+    {
+      "tag": "grey_shorts",
+      "search_query": "grey shorts",
+      "popularity": 11137
+    },
+    {
+      "tag": "multicolored_jacket",
+      "search_query": "multicolored jacket",
+      "popularity": 11133
+    },
+    {
+      "tag": "striped_dress",
+      "search_query": "striped dress",
+      "popularity": 11116
+    },
+    {
+      "tag": "collared_jacket",
+      "search_query": "collared jacket",
+      "popularity": 11037
+    },
+    {
+      "tag": "spiked_collar",
+      "search_query": "spiked collar",
+      "popularity": 11018
+    },
+    {
+      "tag": "fur-trimmed_sleeves",
+      "search_query": "fur-trimmed sleeves",
+      "popularity": 10962
+    },
+    {
+      "tag": "mermaid",
+      "search_query": "mermaid",
+      "popularity": 10821
+    },
+    {
+      "tag": "open_kimono",
+      "search_query": "open kimono",
+      "popularity": 10637
+    },
+    {
+      "tag": "see-through_sleeves",
+      "search_query": "see-through sleeves",
+      "popularity": 10606
+    },
+    {
+      "tag": "brown_shorts",
+      "search_query": "brown shorts",
+      "popularity": 10463
+    },
+    {
+      "tag": "micro_shorts",
+      "search_query": "micro shorts",
+      "popularity": 10344
+    },
+    {
+      "tag": "green_vest",
+      "search_query": "green vest",
+      "popularity": 10225
+    },
+    {
+      "tag": "hooded_cloak",
+      "search_query": "hooded cloak",
+      "popularity": 10211
+    },
+    {
+      "tag": "sakuragaoka_high_school_uniform",
+      "search_query": "sakuragaoka high school uniform",
+      "popularity": 10143
+    },
+    {
+      "tag": "green_shorts",
+      "search_query": "green shorts",
+      "popularity": 10018
+    },
+    {
+      "tag": "gym_shirt",
+      "search_query": "gym shirt",
+      "popularity": 9985
+    },
+    {
+      "tag": "white_bodysuit",
+      "search_query": "white bodysuit",
+      "popularity": 9903
+    },
+    {
+      "tag": "animal_collar",
+      "search_query": "animal collar",
+      "popularity": 9857
+    },
+    {
+      "tag": "black_sports_bra",
+      "search_query": "black sports bra",
+      "popularity": 9833
+    },
+    {
+      "tag": "slingshot_swimsuit",
+      "search_query": "slingshot swimsuit",
+      "popularity": 9820
+    },
+    {
+      "tag": "naked_apron",
+      "search_query": "naked apron",
+      "popularity": 9679
+    },
+    {
+      "tag": "no_shirt",
+      "search_query": "no shirt",
+      "popularity": 9601
+    },
+    {
+      "tag": "orange_skirt",
+      "search_query": "orange skirt",
+      "popularity": 9532
+    },
+    {
+      "tag": "shorts_under_skirt",
+      "search_query": "shorts under skirt",
+      "popularity": 9505
+    },
+    {
+      "tag": "torn_shirt",
+      "search_query": "torn shirt",
+      "popularity": 9418
+    },
+    {
+      "tag": "pink_thighhighs",
+      "search_query": "pink thighhighs",
+      "popularity": 9342
+    },
+    {
+      "tag": "red_collar",
+      "search_query": "red collar",
+      "popularity": 9247
+    },
+    {
+      "tag": "ooarai_school_uniform",
+      "search_query": "ooarai school uniform",
+      "popularity": 9220
+    },
+    {
+      "tag": "green_pants",
+      "search_query": "green pants",
+      "popularity": 8902
+    },
+    {
+      "tag": "multicolored_dress",
+      "search_query": "multicolored dress",
+      "popularity": 8875
+    },
+    {
+      "tag": "blue_hoodie",
+      "search_query": "blue hoodie",
+      "popularity": 8843
+    },
+    {
+      "tag": "green_kimono",
+      "search_query": "green kimono",
+      "popularity": 8842
+    },
+    {
+      "tag": "sweater_dress",
+      "search_query": "sweater dress",
+      "popularity": 8841
+    },
+    {
+      "tag": "black_suit",
+      "search_query": "black suit",
+      "popularity": 8784
+    },
+    {
+      "tag": "plaid_vest",
+      "search_query": "plaid vest",
+      "popularity": 8783
+    },
+    {
+      "tag": "fur-trimmed_cape",
+      "search_query": "fur-trimmed cape",
+      "popularity": 8651
+    },
+    {
+      "tag": "grey_thighhighs",
+      "search_query": "grey thighhighs",
+      "popularity": 8571
+    },
+    {
+      "tag": "arm_garter",
+      "search_query": "arm garter",
+      "popularity": 8561
+    },
+    {
+      "tag": "frilled_panties",
+      "search_query": "frilled panties",
+      "popularity": 8508
+    },
+    {
+      "tag": "sleeveless_jacket",
+      "search_query": "sleeveless jacket",
+      "popularity": 8484
+    },
+    {
+      "tag": "brown_vest",
+      "search_query": "brown vest",
+      "popularity": 8435
+    },
+    {
+      "tag": "untied_bikini",
+      "search_query": "untied bikini",
+      "popularity": 8421
+    },
+    {
+      "tag": "fur-trimmed_dress",
+      "search_query": "fur-trimmed dress",
+      "popularity": 8396
+    },
+    {
+      "tag": "frilled_collar",
+      "search_query": "frilled collar",
+      "popularity": 8378
+    },
+    {
+      "tag": "vertical-striped_thighhighs",
+      "search_query": "vertical-striped thighhighs",
+      "popularity": 8239
+    },
+    {
+      "tag": "frilled_bra",
+      "search_query": "frilled bra",
+      "popularity": 8232
+    },
+    {
+      "tag": "green_panties",
+      "search_query": "green panties",
+      "popularity": 8210
+    },
+    {
+      "tag": "open_vest",
+      "search_query": "open vest",
+      "popularity": 8174
+    },
+    {
+      "tag": "unworn_panties",
+      "search_query": "unworn panties",
+      "popularity": 8103
+    },
+    {
+      "tag": "two-tone_shirt",
+      "search_query": "two-tone shirt",
+      "popularity": 7969
+    },
+    {
+      "tag": "waist_cape",
+      "search_query": "waist cape",
+      "popularity": 7944
+    },
+    {
+      "tag": "see-through_shirt",
+      "search_query": "see-through shirt",
+      "popularity": 7937
+    },
+    {
+      "tag": "unworn_skirt",
+      "search_query": "unworn skirt",
+      "popularity": 7914
+    },
+    {
+      "tag": "plaid_shirt",
+      "search_query": "plaid shirt",
+      "popularity": 7912
+    },
+    {
+      "tag": "police_uniform",
+      "search_query": "police uniform",
+      "popularity": 7840
+    },
+    {
+      "tag": "track_suit",
+      "search_query": "track suit",
+      "popularity": 7813
+    },
+    {
+      "tag": "sailor_senshi_uniform",
+      "search_query": "sailor senshi uniform",
+      "popularity": 7716
+    },
+    {
+      "tag": "print_panties",
+      "search_query": "print panties",
+      "popularity": 7681
+    },
+    {
+      "tag": "belt_collar",
+      "search_query": "belt collar",
+      "popularity": 7658
+    },
+    {
+      "tag": "red_bodysuit",
+      "search_query": "red bodysuit",
+      "popularity": 7650
+    },
+    {
+      "tag": "halter_dress",
+      "search_query": "halter dress",
+      "popularity": 7650
+    },
+    {
+      "tag": "competition_school_swimsuit",
+      "search_query": "competition school swimsuit",
+      "popularity": 7506
+    },
+    {
+      "tag": "blue_sleeves",
+      "search_query": "blue sleeves",
+      "popularity": 7400
+    },
+    {
+      "tag": "open_hoodie",
+      "search_query": "open hoodie",
+      "popularity": 7358
+    },
+    {
+      "tag": "torn_pants",
+      "search_query": "torn pants",
+      "popularity": 7283
+    },
+    {
+      "tag": "blue_bodysuit",
+      "search_query": "blue bodysuit",
+      "popularity": 7278
+    },
+    {
+      "tag": "taut_shirt",
+      "search_query": "taut shirt",
+      "popularity": 7238
+    },
+    {
+      "tag": "asymmetrical_sleeves",
+      "search_query": "asymmetrical sleeves",
+      "popularity": 7210
+    },
+    {
+      "tag": "red_bra",
+      "search_query": "red bra",
+      "popularity": 7206
+    },
+    {
+      "tag": "frilled_thighhighs",
+      "search_query": "frilled thighhighs",
+      "popularity": 7172
+    },
+    {
+      "tag": "purple_bra",
+      "search_query": "purple bra",
+      "popularity": 7123
+    },
+    {
+      "tag": "military_jacket",
+      "search_query": "military jacket",
+      "popularity": 7037
+    },
+    {
+      "tag": "lowleg_panties",
+      "search_query": "lowleg panties",
+      "popularity": 7031
+    },
+    {
+      "tag": "dolphin_shorts",
+      "search_query": "dolphin shorts",
+      "popularity": 7029
+    },
+    {
+      "tag": "print_dress",
+      "search_query": "print dress",
+      "popularity": 6996
+    },
+    {
+      "tag": "orange_jacket",
+      "search_query": "orange jacket",
+      "popularity": 6991
+    },
+    {
+      "tag": "suit_jacket",
+      "search_query": "suit jacket",
+      "popularity": 6972
+    },
+    {
+      "tag": "tokiwadai_school_uniform",
+      "search_query": "tokiwadai school uniform",
+      "popularity": 6891
+    },
+    {
+      "tag": "grey_vest",
+      "search_query": "grey vest",
+      "popularity": 6852
+    },
+    {
+      "tag": "cow_print_bikini",
+      "search_query": "cow print bikini",
+      "popularity": 6851
+    },
+    {
+      "tag": "chaldea_uniform",
+      "search_query": "chaldea uniform",
+      "popularity": 6770
+    },
+    {
+      "tag": "thighhighs_under_boots",
+      "search_query": "thighhighs under boots",
+      "popularity": 6749
+    },
+    {
+      "tag": "vertical-striped_shirt",
+      "search_query": "vertical-striped shirt",
+      "popularity": 6707
+    },
+    {
+      "tag": "orange_dress",
+      "search_query": "orange dress",
+      "popularity": 6681
+    },
+    {
+      "tag": "two-tone_jacket",
+      "search_query": "two-tone jacket",
+      "popularity": 6664
+    },
+    {
+      "tag": "popped_collar",
+      "search_query": "popped collar",
+      "popularity": 6637
+    },
+    {
+      "tag": "otonokizaka_school_uniform",
+      "search_query": "otonokizaka school uniform",
+      "popularity": 6635
+    },
+    {
+      "tag": "thong_bikini",
+      "search_query": "thong bikini",
+      "popularity": 6631
+    },
+    {
+      "tag": "bubble_skirt",
+      "search_query": "bubble skirt",
+      "popularity": 6606
+    },
+    {
+      "tag": "black_cloak",
+      "search_query": "black cloak",
+      "popularity": 6524
+    },
+    {
+      "tag": "polka_dot_panties",
+      "search_query": "polka dot panties",
+      "popularity": 6456
+    },
+    {
+      "tag": "old_school_swimsuit",
+      "search_query": "old school swimsuit",
+      "popularity": 6452
+    },
+    {
+      "tag": "purple_leotard",
+      "search_query": "purple leotard",
+      "popularity": 6418
+    },
+    {
+      "tag": "medium_skirt",
+      "search_query": "medium skirt",
+      "popularity": 6357
+    },
+    {
+      "tag": "white_vest",
+      "search_query": "white vest",
+      "popularity": 6242
+    },
+    {
+      "tag": "wet_panties",
+      "search_query": "wet panties",
+      "popularity": 6235
+    },
+    {
+      "tag": "showgirl_skirt",
+      "search_query": "showgirl skirt",
+      "popularity": 6232
+    },
+    {
+      "tag": "striped_skirt",
+      "search_query": "striped skirt",
+      "popularity": 6231
+    },
+    {
+      "tag": "grey_hoodie",
+      "search_query": "grey hoodie",
+      "popularity": 6200
+    },
+    {
+      "tag": "white_robe",
+      "search_query": "white robe",
+      "popularity": 6190
+    },
+    {
+      "tag": "baggy_pants",
+      "search_query": "baggy pants",
+      "popularity": 6130
+    },
+    {
+      "tag": "print_thighhighs",
+      "search_query": "print thighhighs",
+      "popularity": 6127
+    },
+    {
+      "tag": "red_sleeves",
+      "search_query": "red sleeves",
+      "popularity": 6122
+    },
+    {
+      "tag": "track_pants",
+      "search_query": "track pants",
+      "popularity": 6121
+    },
+    {
+      "tag": "yellow_shorts",
+      "search_query": "yellow shorts",
+      "popularity": 6014
+    },
+    {
+      "tag": "print_skirt",
+      "search_query": "print skirt",
+      "popularity": 5953
+    },
+    {
+      "tag": "metal_collar",
+      "search_query": "metal collar",
+      "popularity": 5923
+    },
+    {
+      "tag": "unconventional_maid",
+      "search_query": "unconventional maid",
+      "popularity": 5920
+    },
+    {
+      "tag": "torn_dress",
+      "search_query": "torn dress",
+      "popularity": 5914
+    },
+    {
+      "tag": "unworn_jacket",
+      "search_query": "unworn jacket",
+      "popularity": 5890
+    },
+    {
+      "tag": "leather_jacket",
+      "search_query": "leather jacket",
+      "popularity": 5851
+    },
+    {
+      "tag": "orange_bikini",
+      "search_query": "orange bikini",
+      "popularity": 5800
+    },
+    {
+      "tag": "open_collar",
+      "search_query": "open collar",
+      "popularity": 5720
+    },
+    {
+      "tag": "sleeveless_kimono",
+      "search_query": "sleeveless kimono",
+      "popularity": 5663
+    },
+    {
+      "tag": "business_suit",
+      "search_query": "business suit",
+      "popularity": 5577
+    },
+    {
+      "tag": "green_sailor_collar",
+      "search_query": "green sailor collar",
+      "popularity": 5552
+    },
+    {
+      "tag": "mobile_suit",
+      "search_query": "mobile suit",
+      "popularity": 5518
+    },
+    {
+      "tag": "red_sailor_collar",
+      "search_query": "red sailor collar",
+      "popularity": 5489
+    },
+    {
+      "tag": "unbuttoned_shirt",
+      "search_query": "unbuttoned shirt",
+      "popularity": 5475
+    },
+    {
+      "tag": "gym_shorts",
+      "search_query": "gym shorts",
+      "popularity": 5423
+    },
+    {
+      "tag": "fur-trimmed_boots",
+      "search_query": "fur-trimmed boots",
+      "popularity": 5366
+    },
+    {
+      "tag": "impossible_shirt",
+      "search_query": "impossible shirt",
+      "popularity": 5351
+    },
+    {
+      "tag": "garreg_mach_monastery_uniform",
+      "search_query": "garreg mach monastery uniform",
+      "popularity": 5317
+    },
+    {
+      "tag": "striped_jacket",
+      "search_query": "striped jacket",
+      "popularity": 5269
+    },
+    {
+      "tag": "roswaal_mansion_maid_uniform",
+      "search_query": "roswaal mansion maid uniform",
+      "popularity": 5237
+    },
+    {
+      "tag": "multicolored_skirt",
+      "search_query": "multicolored skirt",
+      "popularity": 5229
+    },
+    {
+      "tag": "pink_shorts",
+      "search_query": "pink shorts",
+      "popularity": 5195
+    },
+    {
+      "tag": "grey_sailor_collar",
+      "search_query": "grey sailor collar",
+      "popularity": 5172
+    },
+    {
+      "tag": "purple_vest",
+      "search_query": "purple vest",
+      "popularity": 5075
+    },
+    {
+      "tag": "yellow_panties",
+      "search_query": "yellow panties",
+      "popularity": 5074
+    },
+    {
+      "tag": "strapless_bikini",
+      "search_query": "strapless bikini",
+      "popularity": 5039
+    },
+    {
+      "tag": "lowleg_bikini",
+      "search_query": "lowleg bikini",
+      "popularity": 5030
+    },
+    {
+      "tag": "cat_lingerie",
+      "search_query": "cat lingerie",
+      "popularity": 4967
+    },
+    {
+      "tag": "pink_leotard",
+      "search_query": "pink leotard",
+      "popularity": 4912
+    },
+    {
+      "tag": "thong_leotard",
+      "search_query": "thong leotard",
+      "popularity": 4906
+    },
+    {
+      "tag": "bike_shorts_under_skirt",
+      "search_query": "bike shorts under skirt",
+      "popularity": 4891
+    },
+    {
+      "tag": "checkered_skirt",
+      "search_query": "checkered skirt",
+      "popularity": 4890
+    },
+    {
+      "tag": "vertical-striped_dress",
+      "search_query": "vertical-striped dress",
+      "popularity": 4887
+    },
+    {
+      "tag": "polka_dot_bikini",
+      "search_query": "polka dot bikini",
+      "popularity": 4877
+    },
+    {
+      "tag": "black_robe",
+      "search_query": "black robe",
+      "popularity": 4873
+    },
+    {
+      "tag": "torn_skirt",
+      "search_query": "torn skirt",
+      "popularity": 4856
+    },
+    {
+      "tag": "multi-strapped_bikini",
+      "search_query": "multi-strapped bikini",
+      "popularity": 4852
+    },
+    {
+      "tag": "green_cape",
+      "search_query": "green cape",
+      "popularity": 4835
+    },
+    {
+      "tag": "tight_pants",
+      "search_query": "tight pants",
+      "popularity": 4793
+    },
+    {
+      "tag": "plaid_dress",
+      "search_query": "plaid dress",
+      "popularity": 4744
+    },
+    {
+      "tag": "two-tone_skirt",
+      "search_query": "two-tone skirt",
+      "popularity": 4712
+    },
+    {
+      "tag": "demon_slayer_uniform",
+      "search_query": "demon slayer uniform",
+      "popularity": 4703
+    },
+    {
+      "tag": "soccer_uniform",
+      "search_query": "soccer uniform",
+      "popularity": 4660
+    },
+    {
+      "tag": "ribbed_shirt",
+      "search_query": "ribbed shirt",
+      "popularity": 4654
+    },
+    {
+      "tag": "purple_pants",
+      "search_query": "purple pants",
+      "popularity": 4578
+    },
+    {
+      "tag": "yellow_kimono",
+      "search_query": "yellow kimono",
+      "popularity": 4555
+    },
+    {
+      "tag": "medium_dress",
+      "search_query": "medium dress",
+      "popularity": 4486
+    },
+    {
+      "tag": "ryouou_school_uniform",
+      "search_query": "ryouou school uniform",
+      "popularity": 4444
+    },
+    {
+      "tag": "purple_sleeves",
+      "search_query": "purple sleeves",
+      "popularity": 4438
+    },
+    {
+      "tag": "mandarin_collar",
+      "search_query": "mandarin collar",
+      "popularity": 4422
+    },
+    {
+      "tag": "frilled_one-piece_swimsuit",
+      "search_query": "frilled one-piece swimsuit",
+      "popularity": 4415
+    },
+    {
+      "tag": "blue_serafuku",
+      "search_query": "blue serafuku",
+      "popularity": 4412
+    },
+    {
+      "tag": "black_corset",
+      "search_query": "black corset",
+      "popularity": 4408
+    },
+    {
+      "tag": "unworn_bra",
+      "search_query": "unworn bra",
+      "popularity": 4405
+    },
+    {
+      "tag": "employee_uniform",
+      "search_query": "employee uniform",
+      "popularity": 4341
+    },
+    {
+      "tag": "maid_bikini",
+      "search_query": "maid bikini",
+      "popularity": 4332
+    },
+    {
+      "tag": "green_leotard",
+      "search_query": "green leotard",
+      "popularity": 4295
+    },
+    {
+      "tag": "purple_bodysuit",
+      "search_query": "purple bodysuit",
+      "popularity": 4288
+    },
+    {
+      "tag": "grey_panties",
+      "search_query": "grey panties",
+      "popularity": 4275
+    },
+    {
+      "tag": "letterman_jacket",
+      "search_query": "letterman jacket",
+      "popularity": 4229
+    },
+    {
+      "tag": "adjusting_swimsuit",
+      "search_query": "adjusting swimsuit",
+      "popularity": 4211
+    },
+    {
+      "tag": "frilled_kimono",
+      "search_query": "frilled kimono",
+      "popularity": 4199
+    },
+    {
+      "tag": "high-waist_shorts",
+      "search_query": "high-waist shorts",
+      "popularity": 4197
+    },
+    {
+      "tag": "eyepatch_bikini",
+      "search_query": "eyepatch bikini",
+      "popularity": 4167
+    },
+    {
+      "tag": "white_cloak",
+      "search_query": "white cloak",
+      "popularity": 4158
+    },
+    {
+      "tag": "wet_swimsuit",
+      "search_query": "wet swimsuit",
+      "popularity": 4121
+    },
+    {
+      "tag": "see-through_dress",
+      "search_query": "see-through dress",
+      "popularity": 4116
+    },
+    {
+      "tag": "aqua_shirt",
+      "search_query": "aqua shirt",
+      "popularity": 4062
+    },
+    {
+      "tag": "skirt_suit",
+      "search_query": "skirt suit",
+      "popularity": 4058
+    },
+    {
+      "tag": "yoga_pants",
+      "search_query": "yoga pants",
+      "popularity": 4047
+    },
+    {
+      "tag": "purple_cape",
+      "search_query": "purple cape",
+      "popularity": 4044
+    },
+    {
+      "tag": "green_thighhighs",
+      "search_query": "green thighhighs",
+      "popularity": 4030
+    },
+    {
+      "tag": "two-tone_swimsuit",
+      "search_query": "two-tone swimsuit",
+      "popularity": 3998
+    },
+    {
+      "tag": "open_dress",
+      "search_query": "open dress",
+      "popularity": 3967
+    },
+    {
+      "tag": "pink_apron",
+      "search_query": "pink apron",
+      "popularity": 3962
+    },
+    {
+      "tag": "two-tone_bikini",
+      "search_query": "two-tone bikini",
+      "popularity": 3936
+    },
+    {
+      "tag": "suspender_shorts",
+      "search_query": "suspender shorts",
+      "popularity": 3919
+    },
+    {
+      "tag": "purple_shorts",
+      "search_query": "purple shorts",
+      "popularity": 3913
+    },
+    {
+      "tag": "layered_bikini",
+      "search_query": "layered bikini",
+      "popularity": 3886
+    },
+    {
+      "tag": "gekkoukan_high_school_uniform",
+      "search_query": "gekkoukan high school uniform",
+      "popularity": 3885
+    },
+    {
+      "tag": "capri_pants",
+      "search_query": "capri pants",
+      "popularity": 3854
+    },
+    {
+      "tag": "kindergarten_uniform",
+      "search_query": "kindergarten uniform",
+      "popularity": 3821
+    },
+    {
+      "tag": "uranohoshi_school_uniform",
+      "search_query": "uranohoshi school uniform",
+      "popularity": 3799
+    },
+    {
+      "tag": "green_bra",
+      "search_query": "green bra",
+      "popularity": 3797
+    },
+    {
+      "tag": "wa_maid",
+      "search_query": "wa maid",
+      "popularity": 3793
+    },
+    {
+      "tag": "paradis_military_uniform",
+      "search_query": "paradis military uniform",
+      "popularity": 3766
+    },
+    {
+      "tag": "strappy_heels",
+      "search_query": "strappy heels",
+      "popularity": 3753
+    },
+    {
+      "tag": "aqua_skirt",
+      "search_query": "aqua skirt",
+      "popularity": 3749
+    },
+    {
+      "tag": "santa_dress",
+      "search_query": "santa dress",
+      "popularity": 3744
+    },
+    {
+      "tag": "torn_sleeves",
+      "search_query": "torn sleeves",
+      "popularity": 3739
+    },
+    {
+      "tag": "striped_pants",
+      "search_query": "striped pants",
+      "popularity": 3738
+    },
+    {
+      "tag": "lace_panties",
+      "search_query": "lace panties",
+      "popularity": 3720
+    },
+    {
+      "tag": "aqua_dress",
+      "search_query": "aqua dress",
+      "popularity": 3708
+    },
+    {
+      "tag": "torn_bodysuit",
+      "search_query": "torn bodysuit",
+      "popularity": 3707
+    },
+    {
+      "tag": "white_sports_bra",
+      "search_query": "white sports bra",
+      "popularity": 3690
+    },
+    {
+      "tag": "american_flag_dress",
+      "search_query": "american flag dress",
+      "popularity": 3690
+    },
+    {
+      "tag": "black_apron",
+      "search_query": "black apron",
+      "popularity": 3682
+    },
+    {
+      "tag": "nanamori_school_uniform",
+      "search_query": "nanamori school uniform",
+      "popularity": 3681
+    },
+    {
+      "tag": "multicolored_swimsuit",
+      "search_query": "multicolored swimsuit",
+      "popularity": 3665
+    },
+    {
+      "tag": "puffy_detached_sleeves",
+      "search_query": "puffy detached sleeves",
+      "popularity": 3658
+    },
+    {
+      "tag": "brown_sweater_vest",
+      "search_query": "brown sweater vest",
+      "popularity": 3640
+    },
+    {
+      "tag": "ribbed_dress",
+      "search_query": "ribbed dress",
+      "popularity": 3640
+    },
+    {
+      "tag": "pink_hoodie",
+      "search_query": "pink hoodie",
+      "popularity": 3615
+    },
+    {
+      "tag": "pink_sleeves",
+      "search_query": "pink sleeves",
+      "popularity": 3600
+    },
+    {
+      "tag": "asticassia_school_uniform",
+      "search_query": "asticassia school uniform",
+      "popularity": 3576
+    },
+    {
+      "tag": "strapless_shirt",
+      "search_query": "strapless shirt",
+      "popularity": 3568
+    },
+    {
+      "tag": "red_cloak",
+      "search_query": "red cloak",
+      "popularity": 3563
+    },
+    {
+      "tag": "orange_shorts",
+      "search_query": "orange shorts",
+      "popularity": 3540
+    },
+    {
+      "tag": "sailor_bikini",
+      "search_query": "sailor bikini",
+      "popularity": 3539
+    },
+    {
+      "tag": "rubber_boots",
+      "search_query": "rubber boots",
+      "popularity": 3522
+    },
+    {
+      "tag": "torn_cape",
+      "search_query": "torn cape",
+      "popularity": 3502
+    },
+    {
+      "tag": "blue_apron",
+      "search_query": "blue apron",
+      "popularity": 3498
+    },
+    {
+      "tag": "orange_bodysuit",
+      "search_query": "orange bodysuit",
+      "popularity": 3492
+    },
+    {
+      "tag": "striped_bra",
+      "search_query": "striped bra",
+      "popularity": 3480
+    },
+    {
+      "tag": "orange_kimono",
+      "search_query": "orange kimono",
+      "popularity": 3468
+    },
+    {
+      "tag": "hands_in_opposite_sleeves",
+      "search_query": "hands in opposite sleeves",
+      "popularity": 3460
+    },
+    {
+      "tag": "mismatched_bikini",
+      "search_query": "mismatched bikini",
+      "popularity": 3429
+    },
+    {
+      "tag": "pink_pants",
+      "search_query": "pink pants",
+      "popularity": 3427
+    },
+    {
+      "tag": "two-sided_jacket",
+      "search_query": "two-sided jacket",
+      "popularity": 3421
+    },
+    {
+      "tag": "pink_bodysuit",
+      "search_query": "pink bodysuit",
+      "popularity": 3410
+    },
+    {
+      "tag": "meiji_schoolgirl_uniform",
+      "search_query": "meiji schoolgirl uniform",
+      "popularity": 3409
+    },
+    {
+      "tag": "american_flag_bikini",
+      "search_query": "american flag bikini",
+      "popularity": 3397
+    },
+    {
+      "tag": "lace-trimmed_dress",
+      "search_query": "lace-trimmed dress",
+      "popularity": 3394
+    },
+    {
+      "tag": "red_hoodie",
+      "search_query": "red hoodie",
+      "popularity": 3392
+    },
+    {
+      "tag": "unworn_shirt",
+      "search_query": "unworn shirt",
+      "popularity": 3389
+    },
+    {
+      "tag": "two-sided_cape",
+      "search_query": "two-sided cape",
+      "popularity": 3387
+    },
+    {
+      "tag": "hooded_cape",
+      "search_query": "hooded cape",
+      "popularity": 3347
+    },
+    {
+      "tag": "hasu_no_sora_school_uniform",
+      "search_query": "hasu no sora school uniform",
+      "popularity": 3336
+    },
+    {
+      "tag": "bow_bikini",
+      "search_query": "bow bikini",
+      "popularity": 3329
+    },
+    {
+      "tag": "holding_panties",
+      "search_query": "holding panties",
+      "popularity": 3307
+    },
+    {
+      "tag": "high-waist_pants",
+      "search_query": "high-waist pants",
+      "popularity": 3300
+    },
+    {
+      "tag": "white_suit",
+      "search_query": "white suit",
+      "popularity": 3288
+    },
+    {
+      "tag": "brown_sailor_collar",
+      "search_query": "brown sailor collar",
+      "popularity": 3270
+    },
+    {
+      "tag": "kuromorimine_military_uniform",
+      "search_query": "kuromorimine military uniform",
+      "popularity": 3267
+    },
+    {
+      "tag": "tracen_training_uniform",
+      "search_query": "tracen training uniform",
+      "popularity": 3263
+    },
+    {
+      "tag": "yellow_vest",
+      "search_query": "yellow vest",
+      "popularity": 3250
+    },
+    {
+      "tag": "open_shorts",
+      "search_query": "open shorts",
+      "popularity": 3219
+    },
+    {
+      "tag": "very_long_sleeves",
+      "search_query": "very long sleeves",
+      "popularity": 3163
+    },
+    {
+      "tag": "gold_bikini",
+      "search_query": "gold bikini",
+      "popularity": 3156
+    },
+    {
+      "tag": "green_hoodie",
+      "search_query": "green hoodie",
+      "popularity": 3155
+    },
+    {
+      "tag": "green_sleeves",
+      "search_query": "green sleeves",
+      "popularity": 3130
+    },
+    {
+      "tag": "pant_suit",
+      "search_query": "pant suit",
+      "popularity": 3115
+    },
+    {
+      "tag": "turtleneck_dress",
+      "search_query": "turtleneck dress",
+      "popularity": 3095
+    },
+    {
+      "tag": "denim_skirt",
+      "search_query": "denim skirt",
+      "popularity": 3094
+    },
+    {
+      "tag": "impossible_bodysuit",
+      "search_query": "impossible bodysuit",
+      "popularity": 3066
+    },
+    {
+      "tag": "brown_kimono",
+      "search_query": "brown kimono",
+      "popularity": 3065
+    },
+    {
+      "tag": "aqua_bikini",
+      "search_query": "aqua bikini",
+      "popularity": 3055
+    },
+    {
+      "tag": "zero_suit",
+      "search_query": "zero suit",
+      "popularity": 3053
+    },
+    {
+      "tag": "striped_sleeves",
+      "search_query": "striped sleeves",
+      "popularity": 3038
+    },
+    {
+      "tag": "brown_cape",
+      "search_query": "brown cape",
+      "popularity": 3035
+    },
+    {
+      "tag": "ribbon-trimmed_skirt",
+      "search_query": "ribbon-trimmed skirt",
+      "popularity": 3029
+    },
+    {
+      "tag": "naoetsu_high_school_uniform",
+      "search_query": "naoetsu high school uniform",
+      "popularity": 3015
+    },
+    {
+      "tag": "torn_shorts",
+      "search_query": "torn shorts",
+      "popularity": 3003
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+# Python & Virtual Environments
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# Large Datasets, Mosaics & Local Databases
+mosaics/
+title_review/
+scrape/thumbs.db*
+scrape/embeddings_v2/
+scrape/siglip_runs/
+scrape/danbooru2023_curated/
+scrape/danbooru_metadata/
+scrape/dataset_inspection_samples/
+scrape/search_results/
+scrape/xvideos_position_clothing_pairs.json
+
+# Model Checkpoints, Embeddings & SQLite Indexes
+*.pt
+*.pth
+*.safetensors
+*.onnx
+*.npy
+*.npz
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Temporary Media & Scratch Files
+*.mp4
+*.webm
+*.avif
+*.jpg
+*.jpeg
+*.png
+!docs/**/*.png
+!docs/**/*.jpg
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
