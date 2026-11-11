@@ -43,6 +43,10 @@ scrape/xvideos_position_clothing_pairs.json
 *.png
 !docs/**/*.png
 !docs/**/*.jpg
+*.tar
+*.tar.gz
+*.tgz
+*.zip
 
 # OS & Editor Files
 .DS_Store
