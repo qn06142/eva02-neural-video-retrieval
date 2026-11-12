@@ -88,8 +88,39 @@ class BatchDBWriter(threading.Thread):
         self.batch_size = batch_size
         self.flush_interval = flush_interval
         self.queue: queue.Queue[Tuple] = queue.Queue()
+        self.fail_queue: queue.Queue[Tuple[str, str]] = queue.Queue()
         self.stop_event = threading.Event()
         self.total_written = 0
+
+    def _flush_batches(self, conn: sqlite3.Connection, ok_buffer: list[Tuple], fail_buffer: list[Tuple[str, str]]) -> None:
+        if not ok_buffer and not fail_buffer:
+            return
+        try:
+            cur = conn.cursor()
+            if ok_buffer:
+                cur.executemany("""
+                    INSERT OR REPLACE INTO videos_diverse (eid, title, asset_path, preview_url, downloaded)
+                    VALUES (?, ?, ?, ?, ?)
+                """, ok_buffer)
+                status_updates = [(b[2], b[4], b[0]) for b in ok_buffer]
+                cur.executemany("""
+                    UPDATE videos
+                    SET asset_state = 'done', asset_path = ?, downloaded = ?, error = NULL
+                    WHERE eid = ?
+                """, status_updates)
+                self.total_written += len(ok_buffer)
+            if fail_buffer:
+                cur.executemany("""
+                    UPDATE videos
+                    SET asset_state = 'failed', attempts = attempts + 1, error = ?
+                    WHERE eid = ?
+                """, fail_buffer)
+            conn.commit()
+        except Exception as e:
+            print(f"[Writer Error] {e}", flush=True)
+        finally:
+            ok_buffer.clear()
+            fail_buffer.clear()
 
     def run(self):
         conn = sqlite3.connect(self.db_path, timeout=60, check_same_thread=False)
@@ -97,7 +128,6 @@ class BatchDBWriter(threading.Thread):
         conn.execute("PRAGMA synchronous = NORMAL")
         conn.execute("PRAGMA cache_size = -64000")  # 64MB cache
 
-        # Ensure table for diverse search indexing exists
         conn.execute("""
             CREATE TABLE IF NOT EXISTS videos_diverse (
                 eid TEXT PRIMARY KEY,
@@ -110,61 +140,29 @@ class BatchDBWriter(threading.Thread):
         conn.execute("CREATE INDEX IF NOT EXISTS idx_diverse_path ON videos_diverse (asset_path)")
         conn.commit()
 
-        buffer = []
+        buffer: list[Tuple] = []
+        fail_buffer: list[Tuple[str, str]] = []
         last_flush = time.time()
 
-        while not self.stop_event.is_set() or not self.queue.empty():
+        while not self.stop_event.is_set() or not self.queue.empty() or not self.fail_queue.empty():
             try:
-                item = self.queue.get(timeout=0.2)
-                buffer.append(item)
+                buffer.append(self.queue.get(timeout=0.2))
             except queue.Empty:
                 pass
+            while len(fail_buffer) < self.batch_size:
+                try:
+                    fail_buffer.append(self.fail_queue.get_nowait())
+                except queue.Empty:
+                    break
 
             now = time.time()
-            if len(buffer) >= self.batch_size or (buffer and now - last_flush >= self.flush_interval):
-                try:
-                    # Update both the raw crawler videos table and diverse search table in 1 transaction
-                    cur = conn.cursor()
-                    cur.executemany("""
-                        INSERT OR REPLACE INTO videos_diverse (eid, title, asset_path, preview_url, downloaded)
-                        VALUES (?, ?, ?, ?, ?)
-                    """, buffer)
+            if (len(buffer) + len(fail_buffer)) >= self.batch_size or (
+                (buffer or fail_buffer) and now - last_flush >= self.flush_interval
+            ):
+                self._flush_batches(conn, buffer, fail_buffer)
+                last_flush = time.time()
 
-                    # Also reflect 'done' in the main videos tracking table
-                    status_updates = [(b[2], b[4], b[0]) for b in buffer]
-                    cur.executemany("""
-                        UPDATE videos
-                        SET asset_state = 'done', asset_path = ?, downloaded = ?
-                        WHERE eid = ?
-                    """, status_updates)
-
-                    conn.commit()
-                    self.total_written += len(buffer)
-                except Exception as e:
-                    print(f"[Writer Error] {e}", flush=True)
-                finally:
-                    buffer.clear()
-                    last_flush = time.time()
-
-        # Final flush on exit
-        if buffer:
-            try:
-                cur = conn.cursor()
-                cur.executemany("""
-                    INSERT OR REPLACE INTO videos_diverse (eid, title, asset_path, preview_url, downloaded)
-                    VALUES (?, ?, ?, ?, ?)
-                """, buffer)
-                status_updates = [(b[2], b[4], b[0]) for b in buffer]
-                cur.executemany("""
-                    UPDATE videos
-                    SET asset_state = 'done', asset_path = ?, downloaded = ?
-                    WHERE eid = ?
-                """, status_updates)
-                conn.commit()
-                self.total_written += len(buffer)
-            except Exception as e:
-                print(f"[Writer Final Flush Error] {e}", flush=True)
-
+        self._flush_batches(conn, buffer, fail_buffer)
         conn.close()
 
 
@@ -172,12 +170,25 @@ class BatchDBWriter(threading.Thread):
 # High-Throughput Unfiltered Streamer
 # --------------------------------------------------------------------------- #
 
+DEFAULT_TARGET_STATES = ("pending", "skipped_uncurated", "failed")
+
+
 class HighThroughputScraper:
-    def __init__(self, db_path: str, mosaic_dir: str, num_workers: int = 48, limit: Optional[int] = None):
+    def __init__(
+        self,
+        db_path: str,
+        mosaic_dir: str,
+        num_workers: int = 48,
+        limit: Optional[int] = None,
+        states: Tuple[str, ...] = DEFAULT_TARGET_STATES,
+        max_attempts: int = 3,
+    ):
         self.db_path = db_path
         self.mosaic_dir = mosaic_dir
         self.num_workers = num_workers
         self.limit = limit
+        self.states = tuple(s.strip() for s in states if s.strip()) or DEFAULT_TARGET_STATES
+        self.max_attempts = max(1, max_attempts)
         os.makedirs(mosaic_dir, exist_ok=True)
 
         self.db_writer = BatchDBWriter(db_path=self.db_path)
@@ -239,9 +250,11 @@ class HighThroughputScraper:
                         self.downloaded_count += 1
                         self.total_bytes += b_len
                 else:
+                    self.db_writer.fail_queue.put((f"http {r.status_code}", eid))
                     with self.stats_lock:
                         self.failed_count += 1
-            except Exception:
+            except Exception as exc:
+                self.db_writer.fail_queue.put((str(exc)[:200], eid))
                 with self.stats_lock:
                     self.failed_count += 1
             finally:
@@ -274,14 +287,14 @@ class HighThroughputScraper:
             )
 
     def run(self):
-        print(f"[*] Starting High-Throughput Unfiltered Scraper...")
+        print("[*] Starting High-Throughput Unfiltered Scraper...")
         print(f"[*] Target Mosaic Directory: {self.mosaic_dir}")
         print(f"[*] Database: {self.db_path}")
+        print(f"[*] Target States: {', '.join(self.states)} (max_attempts={self.max_attempts})")
         print(f"[*] Worker Threads: {self.num_workers}")
 
         self.db_writer.start()
 
-        # Start workers
         workers = []
         for i in range(self.num_workers):
             t = threading.Thread(target=self.worker_loop, name=f"MosaicWorker-{i}", daemon=True)
@@ -291,34 +304,55 @@ class HighThroughputScraper:
         reporter = threading.Thread(target=self.reporter_loop, name="Reporter", daemon=True)
         reporter.start()
 
-        # Stream candidate tasks from database in chunks
         conn = sqlite3.connect(self.db_path, timeout=60)
         cur = conn.cursor()
 
-        query = """
+        placeholders = ",".join("?" * len(self.states))
+        breakdown = cur.execute(
+            f"""SELECT asset_state, COUNT(*)
+                FROM videos
+                WHERE asset_url IS NOT NULL
+                  AND asset_state IN ({placeholders})
+                  AND attempts < ?
+                GROUP BY asset_state""",
+            (*self.states, self.max_attempts),
+        ).fetchall()
+        breakdown_str = ", ".join(f"{st}: {cnt:,}" for st, cnt in breakdown) or "none"
+        print(f"[*] Eligible Queue Breakdown -> {breakdown_str}")
+
+        query = f"""
             SELECT eid, title, asset_url
             FROM videos
-            WHERE asset_url IS NOT NULL 
-              AND asset_state != 'done'
+            WHERE asset_url IS NOT NULL
+              AND asset_state IN ({placeholders})
+              AND attempts < ?
+            ORDER BY CASE asset_state
+                WHEN 'pending' THEN 0
+                WHEN 'skipped_uncurated' THEN 1
+                ELSE 2
+            END
         """
+        params: list = [*self.states, self.max_attempts]
         if self.limit:
-            query += f" LIMIT {self.limit}"
+            query += " LIMIT ?"
+            params.append(self.limit)
 
-        cur.execute(query)
+        cur.execute(query, tuple(params))
 
         pushed = 0
-        while True:
+        while not self.stop_event.is_set():
             rows = cur.fetchmany(5000)
             if not rows:
                 break
             for row in rows:
+                if self.stop_event.is_set():
+                    break
                 self.task_queue.put(row)
                 pushed += 1
 
         conn.close()
         print(f"[*] Pushed {pushed:,} candidate download tasks to queue. Streaming from CDN...")
 
-        # Wait for queue completion
         self.task_queue.join()
         self.stop_event.set()
         self.db_writer.stop_event.set()
@@ -339,13 +373,32 @@ def main():
     parser.add_argument("--mosaic-dir", default=DEFAULT_MOSAIC_DIR, help="Destination directory for mosaics")
     parser.add_argument("--workers", type=int, default=48, help="Parallel CDN download threads (default: 48)")
     parser.add_argument("--limit", type=int, default=None, help="Maximum number of items to scrape (default: all)")
+    parser.add_argument(
+        "--states",
+        default=",".join(DEFAULT_TARGET_STATES),
+        help="Comma-separated asset_state values to download (default: pending,skipped_uncurated,failed)",
+    )
+    parser.add_argument(
+        "--rejected-only",
+        action="store_true",
+        help="Target only filter-rejected links (asset_state = 'skipped_uncurated')",
+    )
+    parser.add_argument(
+        "--max-attempts",
+        type=int,
+        default=3,
+        help="Skip items that already failed this many times (default: 3)",
+    )
     args = parser.parse_args()
 
+    target_states = ("skipped_uncurated",) if args.rejected_only else tuple(args.states.split(","))
     scraper = HighThroughputScraper(
         db_path=args.db,
         mosaic_dir=args.mosaic_dir,
         num_workers=args.workers,
-        limit=args.limit
+        limit=args.limit,
+        states=target_states,
+        max_attempts=args.max_attempts,
     )
 
     def handle_sigint(sig, frame):

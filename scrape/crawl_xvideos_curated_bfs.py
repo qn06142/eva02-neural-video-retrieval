@@ -87,6 +87,15 @@ def mosaic_url(frame_url: str) -> str:
     return re.sub(r"[^/]+\.(?:jpg|jpeg|png|webp|avif)$", "mozaique_listing.jpg", frame_url or "")
 
 
+def preview_mp4_url(asset_url: str) -> Optional[str]:
+    if not asset_url:
+        return None
+    idx = asset_url.find("/xv_")
+    if idx != -1:
+        return asset_url[:idx] + "/preview.mp4"
+    return None
+
+
 def extract_eid(url: str) -> Optional[str]:
     m = EID_RE.search(url or "")
     return m.group(1) if m else None
@@ -118,6 +127,16 @@ class Database:
                 )
             """)
             self.conn.execute("CREATE INDEX IF NOT EXISTS idx_curated_both ON videos_curated (has_both)")
+            self.conn.execute("""
+                CREATE TABLE IF NOT EXISTS videos_diverse (
+                    eid TEXT PRIMARY KEY,
+                    title TEXT,
+                    asset_path TEXT,
+                    preview_url TEXT,
+                    downloaded REAL
+                )
+            """)
+            self.conn.execute("CREATE INDEX IF NOT EXISTS idx_diverse_path ON videos_diverse (asset_path)")
 
     def add_video(self, eid: str, url: str = None, title: str = None,
                   asset_url: str = None, is_curated: bool = False) -> bool:
@@ -149,21 +168,43 @@ class Database:
             )
             return True
 
-    def mark_curated_done(self, eid: str, asset_path: str, clean_t: str, c_tags: list, p_tags: list):
+    def mark_download_done(
+        self,
+        eid: str,
+        asset_path: str,
+        raw_title: str,
+        asset_url: Optional[str],
+        clean_t: str,
+        c_tags: list,
+        p_tags: list,
+    ):
+        """Record a completed mosaic in `videos`, `videos_diverse`, and (when curated) `videos_curated`."""
         now = time.time()
-        has_both = int(bool(c_tags and p_tags))
+        display_title = clean_t or html.unescape(raw_title or "").strip()
+        prev_url = preview_mp4_url(asset_url or "")
         with self.lock:
             self.conn.execute(
                 """UPDATE videos
-                   SET asset_state = 'done', asset_path = ?, downloaded = ?
+                   SET asset_state = 'done', asset_path = ?, downloaded = ?, error = NULL
                    WHERE eid = ?""",
                 (asset_path, now, eid),
             )
             self.conn.execute(
-                """INSERT OR REPLACE INTO videos_curated (eid, clean_title, clothing_tags, position_tags, has_both, asset_path)
-                   VALUES (?, ?, ?, ?, ?, ?)""",
-                (eid, clean_t, json.dumps(c_tags), json.dumps(p_tags), has_both, asset_path),
+                """INSERT OR REPLACE INTO videos_diverse (eid, title, asset_path, preview_url, downloaded)
+                   VALUES (?, ?, ?, ?, ?)""",
+                (eid, display_title, asset_path, prev_url, now),
             )
+            if c_tags or p_tags:
+                has_both = int(bool(c_tags and p_tags))
+                self.conn.execute(
+                    """INSERT OR REPLACE INTO videos_curated (eid, clean_title, clothing_tags, position_tags, has_both, asset_path)
+                       VALUES (?, ?, ?, ?, ?, ?)""",
+                    (eid, clean_t, json.dumps(c_tags), json.dumps(p_tags), has_both, asset_path),
+                )
+
+    def mark_curated_done(self, eid: str, asset_path: str, clean_t: str, c_tags: list, p_tags: list):
+        """Backwards-compatible alias that also updates `videos_diverse`."""
+        self.mark_download_done(eid, asset_path, clean_t, None, clean_t, c_tags, p_tags)
 
     def set_page_state(self, eid: str, state: str, error: Optional[str] = None):
         with self.lock:
@@ -196,10 +237,35 @@ class Database:
             ).fetchall()
             return [r[0] for r in rows]
 
-    def pending_assets(self, limit: int = 10000) -> List[str]:
+    def missing_asset_url_frontier(self, limit: int = 5000, include_rejected: bool = True) -> List[str]:
+        """Find queued/rejected videos that have a watch URL but are missing `asset_url`."""
+        states = ("pending", "skipped_uncurated") if include_rejected else ("pending",)
+        placeholders = ",".join("?" * len(states))
         with self.lock:
             rows = self.conn.execute(
-                "SELECT eid FROM videos WHERE asset_state = 'pending' AND asset_url IS NOT NULL LIMIT ?", (limit,)
+                f"""SELECT eid FROM videos
+                    WHERE asset_state IN ({placeholders})
+                      AND asset_url IS NULL
+                      AND url IS NOT NULL
+                      AND page_state != 'failed'
+                    LIMIT ?""",
+                (*states, limit),
+            ).fetchall()
+            return [r[0] for r in rows]
+
+    def pending_assets(self, limit: int = 10000, include_rejected: bool = True, max_attempts: int = 3) -> List[str]:
+        """Return EIDs awaiting download, optionally including filter-rejected (`skipped_uncurated`) links."""
+        states = ("pending", "skipped_uncurated") if include_rejected else ("pending",)
+        placeholders = ",".join("?" * len(states))
+        with self.lock:
+            rows = self.conn.execute(
+                f"""SELECT eid FROM videos
+                    WHERE asset_state IN ({placeholders})
+                      AND asset_url IS NOT NULL
+                      AND attempts < ?
+                    ORDER BY CASE asset_state WHEN 'pending' THEN 0 ELSE 1 END
+                    LIMIT ?""",
+                (*states, max_attempts, limit),
             ).fetchall()
             return [r[0] for r in rows]
 
@@ -231,13 +297,17 @@ class RateLimiter:
 class CuratedBFSCrawler:
     def __init__(self, args):
         self.args = args
+        self.include_rejected = not getattr(args, "curated_only", False)
         self.db = Database(args.db)
         self.rate_limiter = RateLimiter(args.rps)
         self.page_queue: queue.Queue[str] = queue.Queue(maxsize=100000)
         self.scheduled: Set[str] = set()
         self.seen_eids: Set[str] = set()
+        self.submitted_downloads: Set[str] = set()
         self.sched_lock = threading.Lock()
+        self.dl_lock = threading.Lock()
         self.pending = 0
+        self.dl_in_flight = 0
         self.stop_event = threading.Event()
         self._local = threading.local()
 
@@ -351,49 +421,57 @@ class CuratedBFSCrawler:
         return {"eid": eid, "url": url, "title": title, "asset_url": thumb}
 
     def download_asset(self, eid: str) -> None:
-        row = self.db.get_video(eid)
-        if row is None or row["asset_state"] == "done":
-            return
-        raw_title = row["title"] or ""
-        c_title = clean_title(raw_title)
-        c_tags = extract_clothing(c_title)
-        p_tags = extract_position(c_title)
-        if not c_tags and not p_tags:
-            self.db.set_asset_state(eid, "skipped_uncurated", error="no_posture_attire_signal")
-            return
-
-        asset_url = row["asset_url"]
-        if not asset_url:
-            self.db.set_asset_state(eid, "failed", error="no thumb url")
-            return
-
-        url = mosaic_url(asset_url)
-        path = os.path.join(MOSAIC_DIR, f"{eid}.jpg")
-        if os.path.exists(path) and os.path.getsize(path) > 1000:
-            self.db.mark_curated_done(eid, path, c_title, c_tags, p_tags)
-            return
-
-        tmp = f"{path}.{threading.get_ident()}.part"
         try:
-            sess = self._session()
-            r = sess.get(url, timeout=20, headers={"Referer": BASE_URL + "/"})
-            if r.status_code == 200 and len(r.content) > 1000:
-                with open(tmp, "wb") as fh:
-                    fh.write(r.content)
-                os.replace(tmp, path)
-                self.db.mark_curated_done(eid, path, c_title, c_tags, p_tags)
-                with self.stats_lock:
-                    self.assets_done += 1
-            else:
-                self.db.set_asset_state(eid, "failed", error=f"http {r.status_code}")
-        except Exception as exc:
-            self.db.set_asset_state(eid, "failed", error=str(exc)[:200])
+            row = self.db.get_video(eid)
+            if row is None or row["asset_state"] in ("done", "purged"):
+                return
+            raw_title = row["title"] or ""
+            c_title = clean_title(raw_title)
+            c_tags = extract_clothing(c_title)
+            p_tags = extract_position(c_title)
+            if not c_tags and not p_tags and not self.include_rejected:
+                self.db.set_asset_state(eid, "skipped_uncurated", error="no_posture_attire_signal")
+                return
+
+            asset_url = row["asset_url"]
+            if not asset_url:
+                # Re-queue watch page if URL exists so missing CDN thumbnail URL gets resolved
+                if row["url"] and row["page_state"] != "failed":
+                    self._schedule(eid)
+                else:
+                    self.db.set_asset_state(eid, "failed", error="no thumb url")
+                return
+
+            url = mosaic_url(asset_url)
+            path = os.path.join(MOSAIC_DIR, f"{eid}.jpg")
+            if os.path.exists(path) and os.path.getsize(path) > 1000:
+                self.db.mark_download_done(eid, path, raw_title, asset_url, c_title, c_tags, p_tags)
+                return
+
+            tmp = f"{path}.{threading.get_ident()}.part"
+            try:
+                sess = self._session()
+                r = sess.get(url, timeout=20, headers={"Referer": BASE_URL + "/"})
+                if r.status_code == 200 and len(r.content) > 1000:
+                    with open(tmp, "wb") as fh:
+                        fh.write(r.content)
+                    os.replace(tmp, path)
+                    self.db.mark_download_done(eid, path, raw_title, asset_url, c_title, c_tags, p_tags)
+                    with self.stats_lock:
+                        self.assets_done += 1
+                else:
+                    self.db.set_asset_state(eid, "failed", error=f"http {r.status_code}")
+            except Exception as exc:
+                self.db.set_asset_state(eid, "failed", error=str(exc)[:200])
+            finally:
+                if os.path.exists(tmp):
+                    try:
+                        os.remove(tmp)
+                    except OSError:
+                        pass
         finally:
-            if os.path.exists(tmp):
-                try:
-                    os.remove(tmp)
-                except OSError:
-                    pass
+            with self.dl_lock:
+                self.dl_in_flight = max(0, self.dl_in_flight - 1)
 
     def _schedule(self, eid: str) -> bool:
         with self.sched_lock:
@@ -407,12 +485,21 @@ class CuratedBFSCrawler:
             except queue.Full:
                 return False
 
-    def _submit_download(self, eid: str) -> None:
-        if not self.stop_event.is_set():
-            try:
-                self.download_pool.submit(self.download_asset, eid)
-            except RuntimeError:
-                pass
+    def _submit_download(self, eid: str) -> bool:
+        if self.stop_event.is_set():
+            return False
+        with self.dl_lock:
+            if eid in self.submitted_downloads:
+                return False
+            self.submitted_downloads.add(eid)
+            self.dl_in_flight += 1
+        try:
+            self.download_pool.submit(self.download_asset, eid)
+            return True
+        except RuntimeError:
+            with self.dl_lock:
+                self.dl_in_flight = max(0, self.dl_in_flight - 1)
+            return False
 
     def _process_page(self, eid: str) -> None:
         row = self.db.get_video(eid)
@@ -438,33 +525,33 @@ class CuratedBFSCrawler:
             is_cur = bool(c_tags or p_tags) and len(c_title) >= 10 and len(c_title.split()) >= 3
             self.db.add_video(main["eid"], url=url, title=main["title"],
                               asset_url=main["asset_url"], is_curated=is_cur)
-            if is_cur:
+            if is_cur or self.include_rejected:
                 self._submit_download(main["eid"])
 
         related = self.parse_related(html)
         new_cnt = 0
         cur_cnt = 0
         for item in related:
-            eid = item["eid"]
+            rel_eid = item["eid"]
             c_title = clean_title(item["title"] or "")
             c_tags = extract_clothing(c_title)
             p_tags = extract_position(c_title)
             is_cur = bool(c_tags or p_tags) and len(c_title) >= 10 and len(c_title.split()) >= 3
 
-            # Fast path: already known uncurated video in memory -> skip DB overhead completely
-            if eid in self.seen_eids and not is_cur:
+            # Fast path: skip DB churn for videos already checked in this session
+            if rel_eid in self.seen_eids and not is_cur:
                 continue
-            self.seen_eids.add(eid)
+            self.seen_eids.add(rel_eid)
 
-            if self.db.add_video(eid, url=item["url"], title=item["title"],
+            if self.db.add_video(rel_eid, url=item["url"], title=item["title"],
                                   asset_url=item["asset_url"], is_curated=is_cur):
                 new_cnt += 1
                 if is_cur:
                     cur_cnt += 1
-                self._schedule(eid)
+                self._schedule(rel_eid)
 
-            if is_cur:
-                self._submit_download(eid)
+            if is_cur or self.include_rejected:
+                self._submit_download(rel_eid)
 
         with self.stats_lock:
             self.discovered_total += new_cnt
@@ -503,7 +590,8 @@ class CuratedBFSCrawler:
                 pages = self.pages_fetched
                 done = self.assets_done
                 disc = self.discovered_total
-                cur = self.curated_discovered
+            with self.dl_lock:
+                dl_q = self.dl_in_flight
 
             q_size = self.page_queue.qsize()
             page_rate = (pages - last_pages) / dt
@@ -514,50 +602,69 @@ class CuratedBFSCrawler:
             last_disc = disc
             last_t = now
 
-            log(f"[SPRAY BFS] {page_rate:.1f} pages/s ({disc_rate:,.1f} vids/s) | {down_rate:.1f} curated img/s | "
-                f"Frontier Queue: {q_size:,} | Discovered: {disc:,} | Curated Mosaics: {done:,} / {self.args.max_thumbs:,}")
+            mode_lbl = "BFS+REJECTED" if self.include_rejected else "CURATED BFS"
+            log(f"[{mode_lbl}] {page_rate:.1f} pages/s ({disc_rate:,.1f} vids/s) | {down_rate:.1f} img/s | "
+                f"Pages Q: {q_size:,} | DL Q: {dl_q:,} | Mosaics Done: {done:,} / {self.args.max_thumbs:,}")
 
             if self.args.max_thumbs and done >= self.args.max_thumbs:
-                log(f"Reached target of {self.args.max_thumbs:,} curated mosaics!")
+                log(f"Reached target of {self.args.max_thumbs:,} downloaded mosaics!")
                 self.stop_event.set()
                 break
 
+    def _drain_asset_backlog(self, batch_limit: int = 5000) -> int:
+        candidates = self.db.pending_assets(limit=batch_limit, include_rejected=self.include_rejected)
+        submitted = 0
+        for eid in candidates:
+            if self._submit_download(eid):
+                submitted += 1
+        return submitted
+
     def run(self):
         os.makedirs(MOSAIC_DIR, exist_ok=True)
+        drain_only = getattr(self.args, "drain_only", False)
 
         # Start Monitor Thread
         monitor = threading.Thread(target=self._monitor_loop, name="Monitor", daemon=True)
         monitor.start()
 
-        # Start Fetcher Workers
         fetch_threads = []
-        log(f"Launching BFS Spray Crawler: {self.args.fetchers} fetcher threads (--rps {self.args.rps}) | {self.args.workers} download threads...")
-        for i in range(self.args.fetchers):
-            t = threading.Thread(target=self._fetch_worker, name=f"Fetcher-{i}", daemon=True)
-            t.start()
-            fetch_threads.append(t)
+        if not drain_only:
+            log(f"Launching BFS Crawler (include_rejected={self.include_rejected}): "
+                f"{self.args.fetchers} fetcher threads (--rps {self.args.rps}) | {self.args.workers} download threads...")
+            for i in range(self.args.fetchers):
+                t = threading.Thread(target=self._fetch_worker, name=f"Fetcher-{i}", daemon=True)
+                t.start()
+                fetch_threads.append(t)
 
-        log("Bootstrapping BFS Frontier from thumbs.db...")
-        queued_eids = self.db.pending_frontier(limit=10000)
-        log(f"Loaded {len(queued_eids):,} queued videos from database frontier.")
-        for eid in queued_eids:
-            self._schedule(eid)
+            log("Bootstrapping BFS Frontier from thumbs.db...")
+            queued_eids = self.db.pending_frontier(limit=10000)
+            log(f"Loaded {len(queued_eids):,} queued pages from database frontier.")
+            for eid in queued_eids:
+                self._schedule(eid)
+        else:
+            log(f"Running in --drain-only mode (include_rejected={self.include_rejected}) on existing DB backlog...")
 
-        # Also drain any existing pending curated assets
-        existing_pending = self.db.pending_assets(limit=5000)
-        if existing_pending:
-            log(f"Submitting {len(existing_pending):,} existing pending curated assets to download pool...")
-            for eid in existing_pending:
-                self._submit_download(eid)
+        initial_dl = self._drain_asset_backlog(batch_limit=5000)
+        if initial_dl:
+            log(f"Submitted {initial_dl:,} existing pending/rejected links from DB to download pool...")
 
         try:
             while not self.stop_event.is_set():
                 time.sleep(1.0)
-                if self.page_queue.qsize() < 2000:
+                if not drain_only and self.page_queue.qsize() < 2000:
                     more = self.db.pending_frontier(limit=5000)
-                    if more:
-                        for eid in more:
-                            self._schedule(eid)
+                    if not more and self.include_rejected:
+                        more = self.db.missing_asset_url_frontier(limit=2000, include_rejected=True)
+                    for eid in more:
+                        self._schedule(eid)
+
+                with self.dl_lock:
+                    in_flight = self.dl_in_flight
+                fed = self._drain_asset_backlog(batch_limit=5000) if in_flight < 2000 else 0
+                all_fetch_done = drain_only or all(not t.is_alive() for t in fetch_threads)
+                if all_fetch_done and fed == 0 and in_flight == 0 and self.page_queue.empty():
+                    log("All frontiers and download queues exhausted.")
+                    break
         except KeyboardInterrupt:
             log("Interrupted by user. Shutting down gracefully...")
             self.stop_event.set()
@@ -568,17 +675,23 @@ class CuratedBFSCrawler:
         log("Waiting for active mosaic downloads to complete...")
         self.download_pool.shutdown(wait=True)
         elapsed = time.time() - self.t_start
-        log(f"BFS Crawler Finished in {elapsed:.1f}s! Total Curated Mosaics: {self.assets_done:,}")
+        log(f"BFS Crawler Finished in {elapsed:.1f}s! Total Mosaics Downloaded: {self.assets_done:,}")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Spray BFS recommendation crawler with live curation filter")
+    parser = argparse.ArgumentParser(description="BFS recommendation crawler + rejected-link downloader")
     parser.add_argument("--db", default=DEFAULT_DB, help="SQLite db path")
     parser.add_argument("--fetchers", type=int, default=16, help="Page fetch worker threads (default: 16)")
     parser.add_argument("--workers", type=int, default=32, help="Contact sheet download worker threads (default: 32)")
     parser.add_argument("--rps", type=float, default=12.0, help="Max page requests per second (default: 12.0)")
-    parser.add_argument("--max-thumbs", type=int, default=100000, help="Target curated mosaics to download (default: 100000)")
+    parser.add_argument("--max-thumbs", type=int, default=100000, help="Target mosaics to download (default: 100000)")
     parser.add_argument("--retries", type=int, default=3, help="Page fetch retries")
+    parser.add_argument("--include-rejected", action="store_true", default=True,
+                        help="Also scrape filter-rejected (`skipped_uncurated`) links (default: enabled)")
+    parser.add_argument("--curated-only", action="store_true",
+                        help="Restrict downloads strictly to curated posture/attire videos")
+    parser.add_argument("--drain-only", action="store_true",
+                        help="Skip watch-page BFS crawling and only download pending/rejected backlog")
     args = parser.parse_args()
 
     crawler = CuratedBFSCrawler(args)

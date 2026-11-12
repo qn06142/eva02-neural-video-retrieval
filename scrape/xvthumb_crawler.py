@@ -48,9 +48,6 @@ from typing import Optional
 
 import requests
 
-sys.path.append(SCRAPE_DIR)
-from filter_curated_pairs import clean_title, extract_clothing, extract_position
-
 # --------------------------------------------------------------------------- #
 # config
 # --------------------------------------------------------------------------- #
@@ -204,15 +201,20 @@ class Database:
                 "SELECT * FROM videos WHERE eid = ?", (eid,)
             ).fetchone()
 
-    def pending_assets(self, limit: Optional[int] = None) -> list:
+    def pending_assets(self, limit: Optional[int] = None, include_rejected: bool = True) -> list:
+        states = ("pending", "skipped_uncurated") if include_rejected else ("pending",)
+        placeholders = ",".join("?" * len(states))
         with self.lock:
-            sql = ("SELECT eid FROM videos "
-                   "WHERE asset_state = 'pending' AND asset_url IS NOT NULL")
-            params: tuple = ()
+            sql = (
+                f"SELECT eid FROM videos "
+                f"WHERE asset_state IN ({placeholders}) AND asset_url IS NOT NULL "
+                f"ORDER BY CASE asset_state WHEN 'pending' THEN 0 ELSE 1 END"
+            )
+            params: list = [*states]
             if limit:
                 sql += " LIMIT ?"
-                params = (limit,)
-            return self.conn.execute(sql, params).fetchall()
+                params.append(limit)
+            return self.conn.execute(sql, tuple(params)).fetchall()
 
     def queued_pages(self, limit: Optional[int] = None) -> list:
         with self.lock:
@@ -227,13 +229,14 @@ class Database:
         with self.lock:
             row = self.conn.execute(
                 """SELECT
-                     COUNT(*)                                              AS total,
-                     SUM(page_state = 'fetched')                            AS fetched,
-                     SUM(page_state = 'failed')                             AS page_failed,
-                     SUM(page_state = 'queued')                             AS queued,
-                     SUM(asset_state = 'done')                              AS done,
-                     SUM(asset_state = 'pending' AND asset_url IS NOT NULL) AS pending,
-                     SUM(asset_state = 'failed')                            AS failed
+                     COUNT(*)                                                        AS total,
+                     SUM(page_state = 'fetched')                                      AS fetched,
+                     SUM(page_state = 'failed')                                       AS page_failed,
+                     SUM(page_state = 'queued')                                       AS queued,
+                     SUM(asset_state = 'done')                                        AS done,
+                     SUM(asset_state = 'pending' AND asset_url IS NOT NULL)           AS pending,
+                     SUM(asset_state = 'skipped_uncurated' AND asset_url IS NOT NULL) AS rejected,
+                     SUM(asset_state = 'failed')                                      AS failed
                    FROM videos"""
             ).fetchone()
             return {k: (row[k] or 0) for k in row.keys()}
@@ -270,6 +273,7 @@ class RateLimiter:
 class Crawler:
     def __init__(self, args: argparse.Namespace):
         self.args = args
+        self.include_rejected = not getattr(args, "skip_rejected", False)
         self.db = Database(args.db)
         self._local = threading.local()
         self.rate_limiter = RateLimiter(args.rps)
@@ -501,7 +505,8 @@ class Crawler:
         if self.download_pool is None:
             return
         row = self.db.get_video(eid)
-        if row is None or row["asset_state"] != "pending":
+        allowed = ("pending", "skipped_uncurated") if self.include_rejected else ("pending",)
+        if row is None or row["asset_state"] not in allowed:
             return
         self.download_pool.submit(self.download_asset, eid)
 
@@ -643,10 +648,13 @@ class Crawler:
             self.download_pool = None
 
     def resume_pending(self) -> None:
-        rows = self.db.pending_assets(limit=self.args.max_thumbs or None)
+        rows = self.db.pending_assets(
+            limit=self.args.max_thumbs or None,
+            include_rejected=self.include_rejected,
+        )
         if not rows:
             return
-        log(f"resuming {len(rows)} pending thumbnail downloads")
+        log(f"resuming {len(rows)} pending/rejected thumbnail downloads")
         with ThreadPoolExecutor(
             max_workers=self.args.workers, thread_name_prefix="resume"
         ) as pool:
@@ -663,6 +671,7 @@ class Crawler:
         print(f"  pages failed      : {c['page_failed']}")
         print(f"  sheets done       : {c['done']}")
         print(f"  sheets pending    : {c['pending']}")
+        print(f"  sheets rejected   : {c['rejected']}")
         print(f"  sheets failed     : {c['failed']}")
         if seeds:
             print(f"  seed ids          : {[s['eid'] for s in seeds]}")
@@ -708,6 +717,10 @@ def build_parser() -> argparse.ArgumentParser:
                    help="page fetch retries (default: 4)")
     p.add_argument("--report", action="store_true",
                    help="print DB statistics and exit")
+    p.add_argument("--include-rejected", action="store_true", default=True,
+                   help="also resume/download filter-rejected (`skipped_uncurated`) links (default: True)")
+    p.add_argument("--skip-rejected", action="store_true",
+                   help="only download 'pending' links and skip `skipped_uncurated`")
     return p
 
 
