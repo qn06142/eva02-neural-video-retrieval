@@ -187,6 +187,47 @@ class TestColabPipeline(unittest.TestCase):
 
         self.assertEqual(count, 2)
 
+    def test_magic_byte_tar_extraction_and_memmap(self):
+        # Create an uncompressed tar archive intentionally named .tar.gz
+        archive_path = os.path.join(self.test_dir, "misnamed_batch.tar.gz")
+        src_manifest = os.path.join(self.test_dir, "manifest.json")
+        with open(src_manifest, "w", encoding="utf-8") as f:
+            json.dump(self.items, f)
+
+        with tarfile.open(archive_path, "w") as tar:
+            tar.add(src_manifest, arcname="manifest.json")
+            for item in self.items:
+                tar.add(item["asset_path"], arcname=f"mosaics/{item['filename']}")
+
+        # Verify magic-byte check distinguishes uncompressed tar from gzip even if named .tar.gz
+        with open(archive_path, "rb") as f:
+            magic = f.read(2)
+        is_gzip = magic == b"\x1f\x8b"
+        self.assertFalse(is_gzip)
+
+        extract_dir = os.path.join(self.test_dir, "extracted")
+        os.makedirs(extract_dir, exist_ok=True)
+        mode = "r:gz" if is_gzip else "r:"
+        with tarfile.open(archive_path, mode, bufsize=4 * 1024 * 1024) as tar:
+            kwargs = {"filter": "data"} if sys.version_info >= (3, 12) else {}
+            for member in tar:
+                tar.extract(member, path=extract_dir, **kwargs)
+
+        self.assertTrue(os.path.exists(os.path.join(extract_dir, "manifest.json")))
+        self.assertTrue(os.path.exists(os.path.join(extract_dir, "mosaics", "mosaic_01.jpg")))
+
+        # Verify open_memmap writes standard np.load-compatible .npy arrays
+        mm_9_path = os.path.join(self.test_dir, "mem_9.npy")
+        mm_9 = np.lib.format.open_memmap(mm_9_path, mode="w+", dtype=np.float16, shape=(2, 9, 768))
+        mm_9[0:2] = np.ones((2, 9, 768), dtype=np.float16)
+        mm_9.flush()
+        del mm_9
+
+        reloaded = np.load(mm_9_path)
+        self.assertEqual(reloaded.shape, (2, 9, 768))
+        self.assertEqual(reloaded.dtype, np.float16)
+        self.assertAlmostEqual(float(reloaded[1, 4, 0]), 1.0, places=3)
+
 
 if __name__ == "__main__":
     unittest.main()
