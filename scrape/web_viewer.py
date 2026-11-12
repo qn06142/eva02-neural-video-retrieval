@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import base64
 from concurrent.futures import ThreadPoolExecutor
+import gc
 import io
 import json
 import os
@@ -168,14 +169,15 @@ def init_engine(emb_dir: str = DEFAULT_EMB_DIR, weights: str = DEFAULT_WEIGHTS, 
     STATE["tiles_gpu_flat"] = None
     STATE["tiles_gpu_count"] = 0
 
-    # 1. Load model first so free VRAM calculation is exact
+    # 1. Load model first so free VRAM calculation is exact (cast .half() on CPU before .to(device)!)
     print(f"[*] Loading EVA-02 model ({model_name})...")
     model, _, _ = open_clip.create_model_and_transforms(model_name)
     if os.path.exists(weights):
         ckpt = torch.load(weights, map_location="cpu")
         state_dict = ckpt.get("state_dict", ckpt)
         model.load_state_dict(state_dict, strict=False)
-    model = model.to(device).half().eval() if device == "cuda" else model.to(device).eval()
+        del ckpt, state_dict
+    model = model.half().to(device).eval() if device == "cuda" else model.to(device).eval()
     STATE["model"] = model
     STATE["tokenizer"] = open_clip.get_tokenizer(model_name)
 
@@ -211,6 +213,8 @@ def init_engine(emb_dir: str = DEFAULT_EMB_DIR, weights: str = DEFAULT_WEIGHTS, 
         need_gb = need_bytes / (1024 ** 3)
         print(f"[*] 9-Tile Max Match Index: {c9:,} videos ({c9 * 9:,} keyframes, {need_gb:.2f} GB) across {len(segs_9)} shard(s).")
         if device == "cuda":
+            gc.collect()
+            torch.cuda.empty_cache()
             free_vram = need_bytes + (600 * 1024 * 1024)
             try:
                 free_vram, _ = torch.cuda.mem_get_info()
