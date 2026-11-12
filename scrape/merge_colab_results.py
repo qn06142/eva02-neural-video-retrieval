@@ -112,7 +112,7 @@ def merge_colab_batch(
     base_count, next_idx = sync_live_binaries_to_sql(emb_dir, meta_db, reset_live=reset_live)
 
     print(f"[*] Loading Colab results from {npy_9tiles} and {manifest_path}...")
-    emb_9 = np.load(npy_9tiles)
+    emb_9 = np.load(npy_9tiles, mmap_mode="r")
     with open(manifest_path, "r", encoding="utf-8") as f:
         manifest = json.load(f)
 
@@ -121,8 +121,8 @@ def merge_colab_batch(
     if emb_9.ndim != 3 or emb_9.shape[1:] != (NUM_TILES, EMBED_DIM):
         raise ValueError(f"Expected 9-tile embeddings of shape (N, 9, 768), got {emb_9.shape}")
 
-    emb_1 = emb_9[:, 4, :].copy() if npy_1tile is None else np.load(npy_1tile)
-    if emb_1.shape != (len(manifest), EMBED_DIM):
+    emb_1 = None if npy_1tile is None else np.load(npy_1tile, mmap_mode="r")
+    if emb_1 is not None and emb_1.shape != (len(manifest), EMBED_DIM):
         raise ValueError(f"Expected 1-tile embeddings of shape ({len(manifest)}, 768), got {emb_1.shape}")
 
     # Filter out any EID already indexed in SQLite or duplicated within manifest
@@ -156,21 +156,31 @@ def merge_colab_batch(
         print(f"[*] Skipped {skipped:,} duplicate/already-indexed EIDs to preserve strict 1-to-1 index alignment.")
 
     if not keep_indices:
+        del emb_9, emb_1
         conn.close()
         print("[*] All manifest items are already in metadata_147k.sqlite3. Nothing to merge.")
         return {"added": 0, "skipped": skipped, "total": next_idx}
 
-    emb_9_filtered = emb_9[keep_indices].astype(np.float16)
-    emb_1_filtered = emb_1[keep_indices].astype(np.float16)
-
     raw_9tiles_file = os.path.join(emb_dir, "live_keyframes_9tiles.bin")
     raw_1tile_file = os.path.join(emb_dir, "live_globals.bin")
 
-    print(f"[*] Appending {len(keep_indices):,} aligned videos ({len(keep_indices) * 9:,} keyframes) to live_*.bin...")
-    with open(raw_9tiles_file, "ab") as f9:
-        f9.write(emb_9_filtered.tobytes())
-    with open(raw_1tile_file, "ab") as f1:
-        f1.write(emb_1_filtered.tobytes())
+    print(f"[*] Streaming {len(keep_indices):,} aligned videos ({len(keep_indices) * 9:,} keyframes) to live_*.bin...")
+    chunk_size = 25000
+    no_skips = (len(keep_indices) == len(manifest))
+    with open(raw_9tiles_file, "ab") as f9, open(raw_1tile_file, "ab") as f1:
+        for start in range(0, len(keep_indices), chunk_size):
+            end = min(start + chunk_size, len(keep_indices))
+            c9 = emb_9[start:end] if no_skips else emb_9[keep_indices[start:end]]
+            c9 = np.asarray(c9, dtype=np.float16)
+            f9.write(c9.tobytes())
+            if emb_1 is None:
+                c1 = np.ascontiguousarray(c9[:, 4, :], dtype=np.float16)
+            else:
+                c1 = emb_1[start:end] if no_skips else emb_1[keep_indices[start:end]]
+                c1 = np.asarray(c1, dtype=np.float16)
+            f1.write(c1.tobytes())
+
+    del emb_9, emb_1
 
     print(f"[*] Committing {len(rows):,} metadata rows (idx {next_idx:,} .. {cur_idx - 1:,}) to {meta_db}...")
     cur.executemany("""
