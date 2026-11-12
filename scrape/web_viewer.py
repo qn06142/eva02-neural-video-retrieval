@@ -67,9 +67,11 @@ app.add_middleware(
 STATE = {
     "model": None,
     "tokenizer": None,
-    "mmap_1tile": None,
+    "mmaps_1tile": [],
     "globals_gpu": None,
-    "mmap_9tiles": None,
+    "mmaps_9tiles": [],
+    "tiles_gpu_flat": None,
+    "tiles_gpu_count": 0,
     "metadata_db": None,
     "device": "cuda" if torch.cuda.is_available() else "cpu",
     "total_1tile": 0,
@@ -92,56 +94,138 @@ def get_live_count(state_file: str, default_total: int = 147412) -> tuple[int, i
     return completed, total
 
 
+def _open_index_pair(
+    base_path: str,
+    live_path: str,
+    state_file: str,
+    row_tail_shape: tuple[int, ...],
+    max_sql_rows: int,
+) -> tuple[list[tuple[np.memmap, int]], int]:
+    """Open base .npy memmap plus optional live_*.bin memmap, bounded strictly to SQLite rows."""
+    row_bytes = int(np.prod(row_tail_shape)) * 2
+    segments: list[tuple[np.memmap, int]] = []
+    remaining = max_sql_rows
+
+    if os.path.exists(base_path):
+        file_rows = os.path.getsize(base_path) // row_bytes
+        c_state, t_state = get_live_count(state_file, default_total=file_rows)
+        valid_base = min(file_rows, c_state if c_state > 0 else file_rows, remaining)
+        if valid_base > 0:
+            shape = (max(file_rows, t_state),) + row_tail_shape
+            mm = np.memmap(base_path, dtype="float16", mode="r", shape=shape)
+            segments.append((mm, valid_base))
+            remaining -= valid_base
+
+    if remaining > 0 and os.path.exists(live_path):
+        live_rows = os.path.getsize(live_path) // row_bytes
+        valid_live = min(live_rows, remaining)
+        if valid_live > 0:
+            mm_live = np.memmap(live_path, dtype="float16", mode="r", shape=(live_rows,) + row_tail_shape)
+            segments.append((mm_live, valid_live))
+            remaining -= valid_live
+
+    total_rows = max_sql_rows - remaining
+    return segments, total_rows
+
+
+def _copy_segments_to_gpu(
+    segments: list[tuple[np.memmap, int]],
+    total_rows: int,
+    row_tail_shape: tuple[int, ...],
+    device: str,
+    chunk_rows: int = 25000,
+) -> torch.Tensor:
+    """Stream base + live memmap segments sequentially into a single contiguous FP16 GPU tensor."""
+    target_shape = (total_rows,) + row_tail_shape
+    gpu_buf = torch.empty(target_shape, dtype=torch.float16, device=device)
+    cursor = 0
+    for mm, count in segments:
+        for start in range(0, count, chunk_rows):
+            end = min(start + chunk_rows, count)
+            span = end - start
+            gpu_buf[cursor:cursor + span].copy_(torch.from_numpy(mm[start:end].copy()), non_blocking=False)
+            cursor += span
+    return gpu_buf
+
+
 def init_engine(emb_dir: str = DEFAULT_EMB_DIR, weights: str = DEFAULT_WEIGHTS, model_name: str = DEFAULT_MODEL, device: str = "cuda"):
     print(f"[*] Initializing Retrieval Engine on {device}...")
     STATE["emb_dir"] = emb_dir
     STATE["device"] = device
 
-    # Load 1-tile index
-    file_1tile = os.path.join(emb_dir, "globals_147k.npy")
-    state_1tile = os.path.join(emb_dir, "encoding_state.json")
-    if os.path.exists(file_1tile):
-        c, t = get_live_count(state_1tile)
-        STATE["total_1tile"] = c
-        STATE["mmap_1tile"] = np.memmap(file_1tile, dtype="float16", mode="r", shape=(t, 768))
-        print(f"[*] Center-Tile Index: {c:,} / {t:,} videos loaded.")
-        if device == "cuda":
-            print(f"[*] Caching {c:,} vectors to GPU VRAM for ~2ms Stage 1 retrieval...")
-            STATE["globals_gpu"] = torch.from_numpy(STATE["mmap_1tile"][:c].copy()).to(device).half()
-
-    # Load 9-tile index if available
-    file_9tiles = os.path.join(emb_dir, "keyframes_9tiles_147k.npy")
-    state_9tiles = os.path.join(emb_dir, "keyframes_9tiles_state.json")
-    if os.path.exists(file_9tiles):
-        c, t = get_live_count(state_9tiles)
-        STATE["total_9tiles"] = c
-        if c > 0:
-            STATE["mmap_9tiles"] = np.memmap(file_9tiles, dtype="float16", mode="r", shape=(t, 9, 768))
-            print(f"[*] 9-Tile Max Match Index: {c:,} / {t:,} videos available.")
-            if device == "cuda":
-                print(f"[*] Caching {c:,} x 9 keyframes to GPU VRAM ({c*9:,} tiles, 2.04 GB) for ~8.9ms Exhaustive MIL...")
-                STATE["tiles_gpu_flat"] = torch.from_numpy(STATE["mmap_9tiles"][:c].copy()).to(device).half().view(c * 9, 768)
-                STATE["tiles_gpu_count"] = c
-
-    # SQLite metadata
     meta_db = os.path.join(emb_dir, "metadata_147k.sqlite3")
     if not os.path.exists(meta_db):
         raise FileNotFoundError(f"Metadata index not found at {meta_db}")
     STATE["metadata_db"] = meta_db
 
-    # Load model
+    conn = sqlite3.connect(meta_db)
+    sql_row = conn.execute("SELECT COUNT(*), COALESCE(MAX(idx), -1) FROM video_metadata").fetchone()
+    conn.close()
+    max_sql_rows = min(int(sql_row[0]), int(sql_row[1]) + 1) if sql_row else 0
+
+    # Reset cached tensors
+    STATE["globals_gpu"] = None
+    STATE["tiles_gpu_flat"] = None
+    STATE["tiles_gpu_count"] = 0
+
+    # 1. Load model first so free VRAM calculation is exact
     print(f"[*] Loading EVA-02 model ({model_name})...")
     model, _, _ = open_clip.create_model_and_transforms(model_name)
     if os.path.exists(weights):
         ckpt = torch.load(weights, map_location="cpu")
         state_dict = ckpt.get("state_dict", ckpt)
         model.load_state_dict(state_dict, strict=False)
-    if device == "cuda":
-        model = model.to(device).half().eval()
-    else:
-        model = model.to(device).eval()
+    model = model.to(device).half().eval() if device == "cuda" else model.to(device).eval()
     STATE["model"] = model
     STATE["tokenizer"] = open_clip.get_tokenizer(model_name)
+
+    # 2. Load 1-tile index (base globals_147k.npy + appended live_globals.bin)
+    segs_1, c1 = _open_index_pair(
+        os.path.join(emb_dir, "globals_147k.npy"),
+        os.path.join(emb_dir, "live_globals.bin"),
+        os.path.join(emb_dir, "encoding_state.json"),
+        (768,),
+        max_sql_rows,
+    )
+    STATE["mmaps_1tile"] = segs_1
+    STATE["total_1tile"] = c1
+    if c1 > 0:
+        print(f"[*] Center-Tile Index: {c1:,} videos loaded ({len(segs_1)} shard(s)).")
+        if device == "cuda":
+            gb1 = (c1 * 768 * 2) / (1024 ** 3)
+            print(f"[*] Caching {c1:,} center vectors to GPU VRAM ({gb1:.2f} GB)...")
+            STATE["globals_gpu"] = _copy_segments_to_gpu(segs_1, c1, (768,), device)
+
+    # 3. Load 9-tile index (base keyframes_9tiles_147k.npy + appended live_keyframes_9tiles.bin)
+    segs_9, c9 = _open_index_pair(
+        os.path.join(emb_dir, "keyframes_9tiles_147k.npy"),
+        os.path.join(emb_dir, "live_keyframes_9tiles.bin"),
+        os.path.join(emb_dir, "keyframes_9tiles_state.json"),
+        (9, 768),
+        max_sql_rows,
+    )
+    STATE["mmaps_9tiles"] = segs_9
+    STATE["total_9tiles"] = c9
+    if c9 > 0:
+        need_bytes = c9 * 9 * 768 * 2
+        need_gb = need_bytes / (1024 ** 3)
+        print(f"[*] 9-Tile Max Match Index: {c9:,} videos ({c9 * 9:,} keyframes, {need_gb:.2f} GB) across {len(segs_9)} shard(s).")
+        if device == "cuda":
+            free_vram = need_bytes + (600 * 1024 * 1024)
+            try:
+                free_vram, _ = torch.cuda.mem_get_info()
+            except Exception:
+                pass
+            if free_vram > need_bytes + (512 * 1024 * 1024):
+                print(f"[*] Caching all {c9 * 9:,} keyframes to GPU VRAM ({need_gb:.2f} GB) for Exhaustive MIL...")
+                STATE["tiles_gpu_flat"] = _copy_segments_to_gpu(segs_9, c9, (9, 768), device).view(c9 * 9, 768)
+                STATE["tiles_gpu_count"] = c9
+            else:
+                print(
+                    f"[*] VRAM headroom ({free_vram / 1024**3:.2f} GB free) < {need_gb + 0.5:.2f} GB needed; "
+                    "using chunked GPU MIL over memory-mapped shards."
+                )
+
     print("[*] Engine ready!")
 
 
@@ -294,18 +378,73 @@ def index():
 
 @app.get("/api/status")
 def status():
-    state_9tiles = os.path.join(STATE["emb_dir"], "keyframes_9tiles_state.json")
-    c9, t9 = get_live_count(state_9tiles)
-    state_1tile = os.path.join(STATE["emb_dir"], "encoding_state.json")
-    c1, t1 = get_live_count(state_1tile)
+    c1 = STATE["total_1tile"]
+    c9 = STATE["total_9tiles"]
     return {
         "device": STATE["device"],
         "count_1tile": c1,
-        "total_1tile": t1,
+        "total_1tile": c1,
         "count_9tiles": c9,
-        "total_9tiles": t9,
+        "total_9tiles": c9,
         "has_9tiles": c9 > 0,
     }
+
+
+def _search_1tile(query_vec: torch.Tensor, top_k: int, device: str) -> tuple[list[int], list[float], int]:
+    """Rank all loaded 1-tile shards (from GPU cache or chunked mmap)."""
+    c1 = STATE["total_1tile"]
+    if STATE.get("globals_gpu") is not None:
+        sims = (query_vec.half() @ STATE["globals_gpu"].T).squeeze(0).float()
+        top_scores, top_indices = torch.topk(sims, k=min(top_k, len(sims)))
+        return top_indices.tolist(), top_scores.tolist(), c1
+
+    q_half = query_vec.squeeze(0).half()
+    chunk_size = 50000
+    score_chunks = []
+    for mm, count in STATE["mmaps_1tile"]:
+        for start in range(0, count, chunk_size):
+            end = min(start + chunk_size, count)
+            vecs = torch.from_numpy(mm[start:end].copy()).to(device).half()
+            score_chunks.append(torch.mv(vecs, q_half).float())
+    all_sims = torch.cat(score_chunks)
+    top_scores, top_indices = torch.topk(all_sims, k=min(top_k, len(all_sims)))
+    return top_indices.tolist(), top_scores.tolist(), c1
+
+
+def _search_9tile(query_vec: torch.Tensor, top_k: int, device: str) -> tuple[list[int], list[float], list[int], int, str]:
+    """Rank all loaded 9-tile bags via MIL max-pooling (GPU VRAM cache or chunked mmap)."""
+    if STATE.get("tiles_gpu_flat") is not None:
+        c = STATE["tiles_gpu_count"]
+        sims = torch.mv(STATE["tiles_gpu_flat"], query_vec.squeeze(0).half()).view(c, 9).float()
+        max_scores, best_tiles = sims.max(dim=-1)
+        top_scores, top_indices = torch.topk(max_scores, k=min(top_k, c))
+        winning_tiles = [best_tiles[idx].item() for idx in top_indices]
+        label = f"Exhaustive 9-Tile MIL ({(c * 9) / 1e6:.2f}M Keyframes)"
+        return top_indices.tolist(), top_scores.tolist(), winning_tiles, c, label
+
+    c9 = STATE["total_9tiles"]
+    if c9 > 0 and STATE.get("mmaps_9tiles"):
+        chunk_size = 25000
+        q_half = query_vec.squeeze(0).half()
+        scores_all = []
+        best_tiles_all = []
+        for mm, count in STATE["mmaps_9tiles"]:
+            for start in range(0, count, chunk_size):
+                end = min(start + chunk_size, count)
+                chunk_tensor = torch.from_numpy(mm[start:end].copy()).to(device).half()
+                sims = torch.einsum("d,nkd->nk", q_half, chunk_tensor).float()
+                max_s, b_tiles = sims.max(dim=-1)
+                scores_all.append(max_s)
+                best_tiles_all.append(b_tiles)
+        all_scores = torch.cat(scores_all)
+        all_best_tiles = torch.cat(best_tiles_all)
+        top_scores, top_indices = torch.topk(all_scores, k=min(top_k, len(all_scores)))
+        winning_tiles = [all_best_tiles[idx].item() for idx in top_indices]
+        label = f"Chunked 9-Tile MIL ({(c9 * 9) / 1e6:.2f}M Keyframes)"
+        return top_indices.tolist(), top_scores.tolist(), winning_tiles, c9, label
+
+    idx_list, score_list, c1 = _search_1tile(query_vec, top_k, device)
+    return idx_list, score_list, [4] * len(idx_list), c1, "Center Tile Fallback"
 
 
 @app.get("/api/thumb/{eid}")
@@ -414,50 +553,19 @@ async def search_api(
         query_vec = vecs[0].float()
 
     # 4. Determine mode & execute search
-    state_1tile = os.path.join(STATE["emb_dir"], "encoding_state.json")
-    c1, _ = get_live_count(state_1tile)
-    state_9tiles = os.path.join(STATE["emb_dir"], "keyframes_9tiles_state.json")
-    c9, _ = get_live_count(state_9tiles)
+    c1 = STATE["total_1tile"]
+    c9 = STATE["total_9tiles"]
 
     t0 = time.time()
     with torch.no_grad():
         if mode == "center":
-            # Instant 1-tile search across 147k
-            if STATE.get("globals_gpu") is not None:
-                sims = (query_vec.half() @ STATE["globals_gpu"].T).squeeze(0).float()
-            else:
-                live_vectors = torch.from_numpy(STATE["mmap_1tile"][:c1].copy()).to(device).float()
-                sims = (query_vec @ live_vectors.T).squeeze(0)
-            top_scores, top_indices = torch.topk(sims, k=min(top_k, len(sims)))
+            top_indices, top_scores, total_searched = _search_1tile(query_vec, top_k, device)
             winning_tiles = [4] * len(top_indices)
-            top_indices = top_indices.tolist()
-            top_scores = top_scores.tolist()
-            total_searched = c1
             active_mode = "Fast Center Tile (1-Tile Instant)"
 
         elif mode in ("dense_rerank", "online_rerank"):
-            # Stage 1: Exhaustive 9-Tile MIL across all 1.33M keyframes in VRAM (~8.9ms) to get top candidates + winning tiles
             num_candidates = min(max(top_k * 2, 36), 60, c9 if c9 > 0 else c1)
-            if STATE.get("tiles_gpu_flat") is not None:
-                c = STATE["tiles_gpu_count"]
-                sims = torch.mv(STATE["tiles_gpu_flat"], query_vec.squeeze(0).half()).view(c, 9).float()
-                max_scores, best_tiles = sims.max(dim=-1)
-                s1_scores, s1_indices = torch.topk(max_scores, k=min(num_candidates, c))
-                s1_tiles = [best_tiles[idx].item() for idx in s1_indices]
-                s1_indices_list = s1_indices.tolist()
-                s1_scores_list = s1_scores.tolist()
-                total_searched = c
-            else:
-                if STATE.get("globals_gpu") is not None:
-                    sims = (query_vec.half() @ STATE["globals_gpu"].T).squeeze(0).float()
-                else:
-                    live_vectors = torch.from_numpy(STATE["mmap_1tile"][:c1].copy()).to(device).float()
-                    sims = (query_vec @ live_vectors.T).squeeze(0)
-                s1_scores, s1_indices = torch.topk(sims, k=min(num_candidates, len(sims)))
-                s1_indices_list = s1_indices.tolist()
-                s1_scores_list = s1_scores.tolist()
-                s1_tiles = [4] * len(s1_indices_list)
-                total_searched = c1
+            s1_indices_list, s1_scores_list, s1_tiles, total_searched, _ = _search_9tile(query_vec, num_candidates, device)
 
             # Stage 2: ViT Dense Spatial Patch Token Rerank (24x24 = 576 spatial patches per candidate winning frame)
             reranked_indices, reranked_scores, winning_tiles_list = rerank_candidates_dense_patches(
@@ -479,52 +587,7 @@ async def search_api(
             active_mode = f"ViT Dense Spatial Patch Rerank (Top {len(s1_indices_list)} x 576 Patches)"
 
         else:
-            # Exhaustive 9-Tile MIL Max-Match across ALL 147,412 videos (1,326,708 keyframes)
-            if STATE.get("tiles_gpu_flat") is not None:
-                c = STATE["tiles_gpu_count"]
-                # Instant matrix-vector dot product: (N*9, 768) @ (768,) in pure FP16 on Tensor Cores (~8.9ms)
-                sims = torch.mv(STATE["tiles_gpu_flat"], query_vec.squeeze(0).half()).view(c, 9)
-                max_scores, best_tiles = sims.max(dim=-1)
-                top_scores, top_indices = torch.topk(max_scores, k=min(top_k, c))
-                winning_tiles = [best_tiles[idx].item() for idx in top_indices]
-                top_indices = top_indices.tolist()
-                top_scores = top_scores.tolist()
-                total_searched = c
-                active_mode = "Exhaustive 9-Tile MIL (1.33M Keyframes)"
-            elif c9 > 0 and STATE.get("mmap_9tiles") is not None:
-                # Memory-safe fallback chunked search
-                chunk_size = 25000
-                q_half = query_vec.squeeze(0).half()
-                scores_all = []
-                best_tiles_all = []
-                for i in range(0, c9, chunk_size):
-                    chunk_np = STATE["mmap_9tiles"][i:min(i + chunk_size, c9)].copy()
-                    chunk_tensor = torch.from_numpy(chunk_np).to(device)
-                    sims = torch.einsum('d,nkd->nk', q_half, chunk_tensor)
-                    max_s, b_tiles = sims.max(dim=-1)
-                    scores_all.append(max_s)
-                    best_tiles_all.append(b_tiles)
-                all_scores = torch.cat(scores_all)
-                all_best_tiles = torch.cat(best_tiles_all)
-                top_scores, top_indices = torch.topk(all_scores, k=min(top_k, len(all_scores)))
-                winning_tiles = [all_best_tiles[idx].item() for idx in top_indices]
-                top_indices = top_indices.tolist()
-                top_scores = top_scores.tolist()
-                total_searched = c9
-                active_mode = "Chunked 9-Tile MIL"
-            else:
-                # Fallback to center tile if 9-tiles not yet loaded
-                if STATE.get("globals_gpu") is not None:
-                    sims = (query_vec.half() @ STATE["globals_gpu"].T).squeeze(0).float()
-                else:
-                    live_vectors = torch.from_numpy(STATE["mmap_1tile"][:c1].copy()).to(device).float()
-                    sims = (query_vec @ live_vectors.T).squeeze(0)
-                top_scores, top_indices = torch.topk(sims, k=min(top_k, len(sims)))
-                winning_tiles = [4] * len(top_indices)
-                top_indices = top_indices.tolist()
-                top_scores = top_scores.tolist()
-                total_searched = c1
-                active_mode = "Center Tile Fallback"
+            top_indices, top_scores, winning_tiles, total_searched, active_mode = _search_9tile(query_vec, top_k, device)
 
     query_ms = (time.time() - t0) * 1000
 
@@ -1097,6 +1160,11 @@ HTML_CONTENT = """<!DOCTYPE html>
         const c1 = data.count_1tile.toLocaleString();
         const c9 = data.count_9tiles.toLocaleString();
         document.getElementById('catalogCount').innerText = `${c1} videos ready (${c9} 9-tile indexed)`;
+        if (data.count_9tiles > 0) {
+          const kfMillions = ((data.count_9tiles * 9) / 1e6).toFixed(2);
+          const opt9 = document.querySelector('#modeSelect option[value="9tile"]');
+          if (opt9) opt9.text = `🎯 Exhaustive 9-Tile MIL (All ${kfMillions}M Keyframes)`;
+        }
       } catch (e) {
         console.error(e);
       }

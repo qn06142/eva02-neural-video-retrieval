@@ -37,6 +37,10 @@ if torch.cuda.is_available():
 
 SCRAPE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SCRAPE_DIR)
+if SCRAPE_DIR not in sys.path:
+    sys.path.insert(0, SCRAPE_DIR)
+
+from merge_colab_results import sync_live_binaries_to_sql
 DEFAULT_DB = os.path.join(SCRAPE_DIR, "thumbs.db")
 DEFAULT_EMB_DIR = os.path.join(SCRAPE_DIR, "embeddings_v2")
 DEFAULT_WEIGHTS = os.path.join(SCRAPE_DIR, "siglip_runs", "eva02_curated_v2", "best.pt")
@@ -137,17 +141,24 @@ def main():
     signal.signal(signal.SIGINT, handle_sigint)
 
     while not stop_requested:
-        # 1. Query unprocessed items from thumbs.db
+        # Ensure binary files strictly align with SQLite before appending any new batch
+        _, next_idx = sync_live_binaries_to_sql(args.emb_dir, meta_db, reset_live=False)
+
+        # 1. Query unprocessed items from thumbs.db (videos_diverse + videos)
         conn = sqlite3.connect(args.db, timeout=60)
         cur = conn.cursor()
         cur.execute(f"ATTACH DATABASE '{meta_db}' AS mdb")
 
-        # Prioritize videos_diverse, fallback to any done video in videos table
         query = """
-            SELECT d.eid, d.title, d.asset_path, d.preview_url
-            FROM videos_diverse d
-            LEFT JOIN mdb.video_metadata m ON d.eid = m.eid
-            WHERE m.eid IS NULL AND d.asset_path IS NOT NULL
+            SELECT u.eid, MAX(u.title), u.asset_path, MAX(u.preview_url)
+            FROM (
+                SELECT eid, title, asset_path, preview_url FROM videos_diverse WHERE asset_path IS NOT NULL
+                UNION ALL
+                SELECT eid, title, asset_path, '' AS preview_url FROM videos WHERE asset_path IS NOT NULL
+            ) u
+            LEFT JOIN mdb.video_metadata m ON u.eid = m.eid
+            WHERE m.eid IS NULL
+            GROUP BY u.eid
         """
         if args.limit > 0:
             query += f" LIMIT {args.limit}"
@@ -156,11 +167,16 @@ def main():
         pending_items = cur.fetchall()
         conn.close()
 
-        # Filter for items that actually exist on disk
-        valid_items = [
-            item for item in pending_items
-            if os.path.exists(item[2]) and os.path.getsize(item[2]) > 1000
-        ]
+        # Filter for items that actually exist on disk (deduplicated)
+        seen_eids = set()
+        valid_items = []
+        for item in pending_items:
+            eid = item[0]
+            if eid in seen_eids:
+                continue
+            if os.path.exists(item[2]) and os.path.getsize(item[2]) > 1000:
+                seen_eids.add(eid)
+                valid_items.append(item)
 
         if not valid_items:
             if args.continuous:
@@ -220,13 +236,13 @@ def main():
             # Update SQLite metadata
             meta_rows = []
             idx_list = batch_indices if isinstance(batch_indices, list) else batch_indices.tolist()
-            for idx_in_batch, original_idx in enumerate(idx_list):
+            for original_idx in idx_list:
                 eid, title, path, preview = valid_items[original_idx]
                 meta_rows.append((next_idx, eid, title, "[]", "[]", path, preview))
                 next_idx += 1
 
             meta_cur.executemany("""
-                INSERT OR REPLACE INTO video_metadata (idx, eid, title, clothing_tags, position_tags, asset_path, preview_url)
+                INSERT INTO video_metadata (idx, eid, title, clothing_tags, position_tags, asset_path, preview_url)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, meta_rows)
             meta_conn.commit()
