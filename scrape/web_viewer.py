@@ -177,6 +177,11 @@ def init_engine(emb_dir: str = DEFAULT_EMB_DIR, weights: str = DEFAULT_WEIGHTS, 
         state_dict = ckpt.get("state_dict", ckpt)
         model.load_state_dict(state_dict, strict=False)
         del ckpt, state_dict
+    else:
+        print(
+            f"[!] Checkpoint not found at {weights}; using stock EVA-02 weights. "
+            "Run 'python scrape/download_weights.py' to download fine-tuned weights."
+        )
     model = model.half().to(device).eval() if device == "cuda" else model.to(device).eval()
     STATE["model"] = model
     STATE["tokenizer"] = open_clip.get_tokenizer(model_name)

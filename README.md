@@ -3,6 +3,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch 2.1+](https://img.shields.io/badge/pytorch-2.1+-ee4c2c.svg)](https://pytorch.org/)
+[![Hugging Face Weights](https://img.shields.io/badge/Hugging%20Face-eva02__curated__v2-ffd21e.svg)](https://huggingface.co/wheatley1901/eva02-neural-video-retrieval)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A high-throughput, fine-grained semantic video retrieval and motion-pacing analysis system built on **EVA-02-CLIP-L-14-336** (`336×336` resolution, `576` spatial patch tokens per image). Designed to index, search, and analyze **147,412 videos** (**1,326,708 keyframes**) in real time on consumer-grade GPU hardware (< 8 GB VRAM).
@@ -182,6 +183,7 @@ The model bridges photographic real-world video frames with stylized 2D illustra
 ```text
 ├── scrape/
 │   ├── web_viewer.py                  # FastAPI + Embedded Dark UI Web Application
+│   ├── download_weights.py            # Download fine-tuned checkpoint from Hugging Face Hub
 │   ├── hover_pacing.py                # 4×3 Grid 2D Optical Flow + PCA Motion Rhythm Analyzer
 │   ├── train_eva02_curated.py         # EVA-02-CLIP-L-14-336 cross-domain fine-tuning script
 │   ├── preencode_curated_v2.py        # Offline indexer for center-tile embeddings (globals_147k.npy)
@@ -230,6 +232,37 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install -r requirements.txt
+```
+
+### 3. Download Pretrained Weights (`eva02_curated_v2.pt`)
+Fine-tuned EVA-02-CLIP-L-14-336 weights (`1,633.21 MB`, 662 `state_dict` keys; frozen 304.43M vision trunk + fine-tuned 123.65M text encoder & `logit_scale`) are hosted on Hugging Face Hub:
+
+- **Model Card**: https://huggingface.co/wheatley1901/eva02-neural-video-retrieval
+- **Direct Download**: [`eva02_curated_v2.pt`](https://huggingface.co/wheatley1901/eva02-neural-video-retrieval/resolve/main/eva02_curated_v2.pt)
+
+Download the checkpoint automatically into `scrape/siglip_runs/eva02_curated_v2/best.pt` (the default path read by `web_viewer.py` and the pre-encoding scripts):
+
+```bash
+python scrape/download_weights.py
+```
+
+Or pull directly in Python with `huggingface_hub`:
+
+```python
+import torch
+import open_clip
+from huggingface_hub import hf_hub_download
+
+ckpt_path = hf_hub_download(
+    repo_id="wheatley1901/eva02-neural-video-retrieval",
+    filename="eva02_curated_v2.pt",
+)
+model, _, _ = open_clip.create_model_and_transforms(
+    "hf-hub:timm/eva02_large_patch14_clip_336.merged2b_s6b_b61k"
+)
+ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+model.load_state_dict(ckpt.get("state_dict", ckpt), strict=True)
+model = model.half().cuda().eval()
 ```
 
 ---
@@ -282,7 +315,7 @@ Open `http://localhost:7860` or your LAN IP in any browser.
 ### 1. Fine-Tuned Checkpoint Performance (`EVA-02-CLIP-L-14-336`)
 *Trained on 265,342 balanced image-tag pairs (147k real-world video keyframe bags + curated Danbooru/Pixiv pairs) using the unified 779-tag posture and attire taxonomy:*
 
-| Metric | Baseline Zero-Shot EVA-02 | Fine-Tuned Checkpoint (`best.pt`) | Gain / Relative Improvement |
+| Metric | Baseline Zero-Shot EVA-02 | Fine-Tuned Checkpoint ([`best.pt`](https://huggingface.co/wheatley1901/eva02-neural-video-retrieval/blob/main/eva02_curated_v2.pt)) | Gain / Relative Improvement |
 | :--- | :--- | :--- | :--- |
 | **Validation Loss** | `1.428` | **`1.054`** | **-26.2%** |
 | **Training Loss** | `0.873` | **`0.309`** | **-64.6%** |
